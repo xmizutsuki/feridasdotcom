@@ -103,6 +103,23 @@ async function renderTrends(){
  const c=$("content");if(!state.lesions.length){c.innerHTML='<section class="panel">'+empty("Nenhuma lesão cadastrada","Crie uma lesão para visualizar tendências.")+'</section>';return;}
  c.innerHTML='<section class="panel"><div class="filters"><div class="form-group"><label for="trend-lesion">Selecionar lesão</label><select id="trend-lesion">'+selectOptions(state.lesions,state.selectedLesion,l=>l.location+" · "+patientName(l.patient_id))+'</select></div></div><div id="trend-content">Carregando...</div></section>';
  $("trend-lesion").addEventListener("change",ev=>{state.selectedLesion=ev.target.value;renderTrends().catch(e=>notice(e.message,true));});
+ const lesionId=state.selectedLesion;
+ const assessments=state.assessments.filter(a=>a.lesion_id===lesionId);
+ const photoLists=await Promise.all(assessments.map(a=>api("/assessments/"+encodeURIComponent(a.id)+"/photos")));
+ const photoChoices=photoLists.flatMap((photos,i)=>photos.map(p=>({id:p.id,assessment_id:assessments[i].id,at:assessments[i].captured_at}))).sort((a,b)=>new Date(a.at)-new Date(b.at));
+ const comparables=photoChoices.length>1 ? '<div class="assessment-card"><h3>Comparação de fotografias (experimental)</h3><p class="tiny">Compara apenas metadados e indicadores de qualidade. Não realiza alinhamento espacial ou medição de área.</p><div class="filters"><div class="form-group"><label for="photo-prev">Anterior</label><select id="photo-prev">'+photoChoices.map(p=>'<option value="'+escapeHtml(p.id)+'">'+date(p.at)+'</option>').join("")+'</select></div><div class="form-group"><label for="photo-current">Atual</label><select id="photo-current">'+photoChoices.map(p=>'<option value="'+escapeHtml(p.id)+'">'+date(p.at)+'</option>').join("")+'</select></div></div><button class="secondary-btn" id="compare-photo">Verificar comparabilidade</button><div id="compare-result" aria-live="polite"></div></div>' : '<p class="tiny">Adicione fotografias a duas avaliações diferentes para verificar a comparabilidade técnica.</p>';
+ $("trend-content").insertAdjacentHTML("afterend",'<div id="comparison-content">'+comparables+'</div>');
+ if(photoChoices.length>1){
+   $("photo-prev").value=photoChoices[0].id;
+   $("photo-current").value=photoChoices[photoChoices.length-1].id;
+   $("compare-photo").addEventListener("click",async()=>{
+      const output=$("compare-result");output.textContent="Verificando...";
+      try{
+        const result=await api("/photos/"+encodeURIComponent($("photo-current").value)+"/compare/"+encodeURIComponent($("photo-prev").value));
+        output.innerHTML='<p class="muted">'+escapeHtml(result.interpretation)+'</p><p class="tiny">Dimensões iguais: '+(result.same_pixel_dimensions?'sim':'não')+'. Comparação quantitativa autorizada: não.</p>';
+      }catch(e){output.textContent=e.message;}
+   });
+ }
  const trends=await api("/lesions/"+encodeURIComponent(state.selectedLesion)+"/trend");
  const measured=trends.filter(t=>t.area_cm2!==null);
  $("trend-content").innerHTML=measured.length?'<div class="panel-header"><h2>Evolução da área registrada</h2><span class="tiny">Somente avaliações validadas</span></div><div class="bar-chart">'+measured.map(t=>{const max=Math.max(...measured.map(x=>x.area_cm2),1);return '<div class="bar-group"><div class="bar-value">'+escapeHtml(t.area_cm2)+' cm²</div><div class="bar" style="height:'+Math.max(3,Math.round(t.area_cm2/max*155))+'px"></div><div class="bar-label">'+date(t.captured_at)+'</div></div>';}).join("")+'</div><p class="muted">Variação desde a primeira área válida: '+escapeHtml(measured.at(-1).change_from_baseline_percent)+'%. Os números são descritivos, não constituem interpretação clínica nem confirmação de resposta terapêutica.</p>':empty("Sem medições validadas","Registre a área e finalize ao menos uma avaliação.");
