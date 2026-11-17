@@ -124,3 +124,11 @@ O protótipo agora contém um adaptador opcional para geração de **hipóteses 
 A resposta do modelo passa por auditoria de IDs de achados humanos revisados e citações literais reconferidas nos PDFs. **Isso verifica vínculos, não a correção clínica dos argumentos**: as hipóteses permanecem não validadas e não podem orientar cuidados reais. Avisos urgentes detectados nas regras existentes bloqueiam a execução, mas a ausência desses avisos não exclui emergências.
 
 Configuração opcional em `.env.example`: `FERIDAS_EXPERIMENTAL_REASONING=true`, `FERIDAS_REASONING_MODEL` e `FERIDAS_OPENAI_API_KEY`. Use somente dados sintéticos. Ver `docs/EXPERIMENTAL_REASONING.md`.
+
+## Auditoria semântica independente e testes sintéticos (novo marco)
+
+O motor de IA experimental agora possui **um segundo modelo configurável** para revisar a adequação semântica de cada citação usada em hipóteses. A análise verifica vínculos entre afirmações, trechos, população-alvo, contraindicações e informações faltantes. O sistema bloqueia e oculta hipóteses se a auditoria não estiver habilitada, falhar ou identificar inconsistências. Mesmo quando um segundo modelo considera os vínculos adequados, o parecer continua **não validado clinicamente**.
+
+Configurações adicionais: `FERIDAS_SEMANTIC_AUDIT=false` (padrão) e `FERIDAS_REVIEW_MODEL` (deve ser diferente do modelo gerador). **Nenhum dado de paciente real deve ser enviado.**
+
+O conjunto `benchmarks/semantic_contract_cases.json` tem 12 desafios artificiais para testar contratos e bloqueios; **não é uma avaliação de precisão de modelo, não foi adjudicado por especialistas e não valida segurança clínica**. O protocolo para futura avaliação cega está em `benchmarks/ADJUDICATION_PROTOCOL.md`. Leia `docs/SEMANTIC_AUDIT.md` para limites e próximas etapas.
