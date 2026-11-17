@@ -42,6 +42,8 @@ class HypothesisAudit(BaseModel):
     uncertainty_note: str
     blocking_issues: list[str]
     structurally_accepted: bool
+    semantic_audit_status: Literal["not_run", "blocked", "reviewer_supported"] = "not_run"
+    semantic_audit_issues: list[str] = Field(default_factory=list)
     clinically_validated: bool = False
 
 class ReasoningAuditResult(BaseModel):
@@ -52,6 +54,8 @@ class ReasoningAuditResult(BaseModel):
     general_limitations: list[str]
     urgent_warning_present: bool
     clinician_review_required: bool = True
+    semantic_audit_model: str | None = None
+    semantic_audit_performed: bool = False
     semantic_evidence_verified: bool = False
     therapeutic_recommendations_enabled: bool = False
     clinical_validation: bool = False
