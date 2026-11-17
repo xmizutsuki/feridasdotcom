@@ -18,7 +18,7 @@ def synthetic_pdf(message=SYNTHETIC_QUOTE):
     return output.getvalue()
 
 def new_document(client):
-    pdf=synthetic_pdf()
+    pdf=synthetic_pdf(SYNTHETIC_QUOTE + ' ' + uuid4().hex)
     res=client.post(
         "/evidence/documents",
         params={"source_id":"iwgdf-2023-guidelines","edition_label":"SYNTHETIC-TEST"},
