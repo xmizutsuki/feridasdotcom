@@ -11,6 +11,7 @@ from .db import get_db
 from .models import Assessment, Photo, AuditEvent
 from .security import settings, verify_password, new_session, read_session, SESSION_SECONDS
 from .media import MAX_UPLOAD, process_photo, store_encrypted, read_encrypted
+from .quality import inspect_quality
 
 class LoginRequest(BaseModel):
     password: str = Field(min_length=1)
@@ -85,7 +86,7 @@ def install_security(app):
                           actor="owner", detail="Image normalized, EXIF removed, encrypted"))
         db.commit()
         return {"id": photo.id, "assessment_id": assessment_id, "width": width, "height": height,
-                "media_type": mime, "sha256": digest}
+                "media_type": mime, "sha256": digest, "quality": inspect_quality(cleaned).model_dump()}
 
     @router.get("/assessments/{assessment_id}/photos")
     def list_photos(assessment_id: str, db: Session = Depends(get_db)):
@@ -94,6 +95,17 @@ def install_security(app):
         photos = db.scalars(select(Photo).where(Photo.assessment_id == assessment_id).order_by(Photo.uploaded_at)).all()
         return [{"id": p.id, "assessment_id": p.assessment_id, "width": p.width,
                  "height": p.height, "uploaded_at": p.uploaded_at.isoformat()} for p in photos]
+
+    @router.get("/photos/{photo_id}/quality")
+    def photo_quality(photo_id: str, db: Session = Depends(get_db)):
+        photo = db.get(Photo, photo_id)
+        if photo is None:
+            raise HTTPException(status_code=404, detail="Imagem não encontrada")
+        try:
+            data = read_encrypted(photo.filename, config)
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail="Imagem não disponível") from exc
+        return inspect_quality(data).model_dump()
 
     @router.get("/photos/{photo_id}")
     def download_photo(photo_id: str, db: Session = Depends(get_db)):
