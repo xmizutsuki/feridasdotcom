@@ -37,9 +37,7 @@ def store_encrypted(raw: bytes, config: dict) -> tuple[str, str]:
     tmp = folder / (filename + ".tmp")
     tmp.write_bytes(encrypted)
     os.chmod(tmp, 0o600)
-    (folder / filename).write_bytes(encrypted)
-    os.chmod(folder / filename, 0o600)
-    tmp.unlink(missing_ok=True)
+    tmp.replace(folder / filename)
     return filename, hashlib.sha256(raw).hexdigest()
 
 def read_encrypted(filename: str, config: dict) -> bytes:
