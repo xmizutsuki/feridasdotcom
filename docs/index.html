@@ -1,69 +1,60 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#123c36">
-<title>Feridas.com — Demonstração</title>
-<style>
-:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#203d36;background:#f4f7f5}*{box-sizing:border-box}body{margin:0}.shell{display:flex;min-height:100vh}.sidebar{width:245px;background:#153d36;color:#ecfaf5;padding:27px 18px;flex-shrink:0}.logo{font-size:26px;font-weight:850;letter-spacing:-1px;margin-bottom:8px}.logo span{color:#8edcaf}.tag{font-size:10px;letter-spacing:1.5px;opacity:.65;margin-bottom:40px}.menu{display:flex;flex-direction:column;gap:7px}.menu button{background:transparent;border:0;color:#d4e6dd;border-radius:10px;text-align:left;padding:13px 14px;font-size:14px;cursor:pointer}.menu button.active,.menu button:hover{background:#2a5c4d;color:#fff}.sidebar small{display:block;line-height:1.55;color:#acc9bc;margin-top:45px}.main{padding:32px min(4vw,48px);width:100%;max-width:1250px;margin:auto}.eyebrow{color:#548576;font-size:11px;letter-spacing:2px;font-weight:700}h1{margin:8px 0 7px;font-size:clamp(25px,3vw,36px);letter-spacing:-1px}p{line-height:1.55}.muted{color:#7a9188;font-size:13px}.banner{border:1px solid #e1b89c;background:#fff5eb;color:#8a4c29;padding:13px 16px;border-radius:12px;font-size:13px;line-height:1.5;margin:18px 0 24px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:22px 0}.metric,.panel{background:#fff;border:1px solid #e1eae5;border-radius:14px;padding:22px;box-shadow:0 3px 17px #183b3210}.metric strong{display:block;font-size:32px;margin:4px 0}.metric span{color:#66867a;font-size:12px}.grid{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;margin:20px 0}.panel h2{font-size:18px;margin:0 0 16px;letter-spacing:-.3px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #eff3ef;padding:14px 0}.row:last-child{border-bottom:0}.pill{font-size:11px;background:#e2f3e9;color:#2d7457;border-radius:20px;padding:5px 10px}.warning{background:#fff2e6;color:#99613b}.btn{border:none;background:#286d55;color:white;border-radius:9px;padding:11px 15px;font-size:13px;font-weight:650;cursor:pointer}.btn.secondary{background:#e8f3ed;color:#25654f}.btn:focus-visible,.menu button:focus-visible,input:focus-visible{outline:3px solid #8bd5ad}.field{display:flex;flex-direction:column;gap:7px;margin:14px 0}.field label{font-size:13px;color:#48685b;font-weight:650}input,select,textarea{padding:11px 12px;border:1px solid #d1e0d7;border-radius:9px;font:inherit;font-size:14px;max-width:100%}textarea{min-height:85px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.notice{background:#e8f3ed;color:#275e4d;padding:15px;border-radius:10px;font-size:13px;margin-top:15px}.bar{height:11px;border-radius:20px;background:#e9f0ec;overflow:hidden;margin:9px 0 17px}.bar>div{height:100%;border-radius:20px;background:#50a27d}.foot{font-size:12px;color:#8da096;margin-top:30px}a{color:#28765d}.empty{padding:18px;border:1px dashed #d8e5df;border-radius:12px;color:#6c857a;font-size:13px}.hide{display:none!important}@media(max-width:800px){.shell{display:block}.sidebar{width:100%;padding:17px}.logo{display:inline-block;margin-right:20px}.tag{display:inline-block;margin:0}.menu{flex-direction:row;overflow:auto}.menu button{white-space:nowrap}.sidebar small{margin-top:12px}.main{padding:25px 17px}.grid{grid-template-columns:1fr}}@media(max-width:500px){.metrics{grid-template-columns:1fr}.two{grid-template-columns:1fr}} 
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b2829" />
+  <title>Feridas.com — Demonstração do frontend real</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="./demo-api.js" defer></script>
+  <script src="./app.js" defer></script>
+  <script src="./clinical.js" defer></script>
+  <script src="./second_opinion.js" defer></script>
+  <script src="./evidence.js" defer></script>
+  <script src="./document_evidence.js" defer></script>
+  <script src="./differential.js" defer></script>
+  <script src="./reasoning.js" defer></script>
 </head>
 <body>
-<div class="shell">
-<aside class="sidebar">
-<div class="logo">✳ feridas<span>.com</span></div>
-<div class="tag">DEMONSTRAÇÃO INTERATIVA</div>
-<nav class="menu" aria-label="Navegação da demonstração">
-<button class="active" data-view="dashboard">▦ Visão geral</button>
-<button data-view="patients">♙ Pacientes fictícios</button>
-<button data-view="assessment">▤ Avaliação simulada</button>
-<button data-view="trends">⌁ Evolução simulada</button>
-<button data-view="research">◈ Pesquisa científica</button>
-</nav>
-<small>Este site é uma demonstração estática do produto. Nenhum dado clínico é gravado, enviado ou analisado por IA.</small>
-</aside>
-<main class="main">
-<p class="eyebrow">FERIDAS.COM / AMBIENTE DE DEMONSTRAÇÃO</p>
-<h1 id="page-title">Visão geral</h1>
-<p id="page-subtitle" class="muted">Explore a interface com informações inteiramente fictícias.</p>
-<div class="banner"><strong>DEMONSTRAÇÃO — NÃO É O PRONTUÁRIO FUNCIONAL.</strong> Esta página usa dados sintéticos definidos no navegador. Não tem login, backend, banco de dados, armazenamento de fotos nem IA ativa. Não inclua informações de pacientes reais.</div>
-<div id="view"></div>
-<div class="foot">Feridas.com · Protótipo de demonstração · <a href="https://github.com/xmizutsuki/feridasdotcom/pull/1" target="_blank" rel="noopener">Ver implementação em desenvolvimento no GitHub</a></div>
-</main>
-</div>
-<script>
-"use strict";
-const cases=[
-{id:"SIM-001",name:"Paciente fictício A",site:"Região maleolar (simulada)",kind:"Lesão simulada",area:[8.4,7.1,6.3]},
-{id:"SIM-002",name:"Paciente fictício B",site:"Região sacral (simulada)",kind:"Lesão simulada",area:[6.9,7.2,6.8]},
-{id:"SIM-003",name:"Paciente fictício C",site:"Pé (simulado)",kind:"Lesão simulada",area:[5.2,4.9,4.7]}
-];
-const titles={dashboard:["Visão geral","Um panorama ilustrativo de registros fictícios."],patients:["Pacientes fictícios","Exemplos estáticos — nenhuma pessoa real."],assessment:["Avaliação simulada","Explore os campos sem salvar ou enviar informações."],trends:["Evolução simulada","Visualização de números inventados para demonstrar o layout."],research:["Biblioteca científica","Veja o fluxo planejado de rastreabilidade, sem RAG ativo."]};
-const view=document.getElementById("view");
-function safe(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function button(label,viewName){return '<button class="btn secondary" data-open="'+viewName+'">'+label+'</button>'}
-function draw(page){
-document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===page));
-document.getElementById("page-title").textContent=titles[page][0];
-document.getElementById("page-subtitle").textContent=titles[page][1];
-if(page==="dashboard"){
- view.innerHTML='<div class="metrics"><div class="metric"><span>Pacientes fictícios</span><strong>03</strong><span>Somente exemplos</span></div><div class="metric"><span>Lesões simuladas</span><strong>03</strong><span>Nenhuma fotografia real</span></div><div class="metric"><span>Avaliações ilustrativas</span><strong>09</strong><span>Sem registros persistidos</span></div></div><div class="grid"><div class="panel"><h2>Casos ilustrativos</h2>'+
- cases.map(c=>'<div class="row"><div><strong>'+safe(c.name)+'</strong><div class="muted">'+safe(c.site)+'</div></div><span class="pill">Simulação</span></div>').join("")+
- '</div><div class="panel"><h2>Etapas do sistema</h2><p class="muted">1. Registro e anamnese</p><p class="muted">2. Observações revisadas</p><p class="muted">3. Referências verificáveis</p><p class="muted">4. Auditoria e revisão humana</p><p class="muted">5. Histórico longitudinal</p>'+button("Explorar avaliação","assessment")+'</div></div>';
-}else if(page==="patients"){
-view.innerHTML='<div class="panel"><h2>Exemplos de pacientes</h2>'+cases.map(c=>'<div class="row"><div><strong>'+safe(c.name)+' · '+c.id+'</strong><div class="muted">Lesão fictícia — '+safe(c.site)+'</div></div>'+button("Ver evolução","trends")+'</div>').join("")+'</div><div class="notice">A lista é fixa e será restaurada ao atualizar a página. Não existe cadastro funcional nesta hospedagem.</div>';
-}else if(page==="assessment"){
-view.innerHTML='<div class="panel"><h2>Formulário demonstrativo</h2><form id="demo-form"><div class="two"><div class="field"><label for="case">Caso fictício</label><select id="case">'+cases.map(c=>'<option>'+safe(c.name)+'</option>').join("")+'</select></div><div class="field"><label for="pain">Dor referida (0–10)</label><input id="pain" type="number" min="0" max="10" value="4" required></div></div><div class="two"><div class="field"><label for="exudate">Exsudato</label><select id="exudate"><option>Não avaliado</option><option>Ausente</option><option>Pequeno</option><option>Moderado</option><option>Elevado</option></select></div><div class="field"><label for="perfusion">Perfusão</label><select id="perfusion"><option>Não avaliada</option><option>Sem preocupação relatada</option><option>Possível alteração relatada</option></select></div></div><div class="field"><label for="note">Observação fictícia (não digite dados reais)</label><textarea id="note" placeholder="Exemplo: observação demonstrativa. Não registrar pacientes reais."></textarea></div><button class="btn" type="submit">Visualizar resumo (sem salvar)</button></form><div id="demo-output" aria-live="polite"></div></div>';
-document.getElementById("demo-form").addEventListener("submit",e=>{e.preventDefault(); const c=document.getElementById("case").value;const pain=document.getElementById("pain").value;const ex=document.getElementById("exudate").value;document.getElementById("demo-output").innerHTML='<div class="notice"><strong>Resumo fictício:</strong> '+safe(c)+' · Dor: '+safe(pain)+'/10 · Exsudato: '+safe(ex)+'.<p>Pré-visualização temporária. Nenhum dado foi enviado nem armazenado. Não há diagnóstico ou sugestão terapêutica.</p></div>'});
-}else if(page==="trends"){
-view.innerHTML='<div class="panel"><h2>Evolução ilustrativa de área</h2><p class="muted">Valores inventados em cm² apenas para demonstrar visualização. Não representam medidas fotográficas e não têm validade clínica.</p>'+
- cases.map(c=>'<div class="panel" style="box-shadow:none;margin-top:15px"><strong>'+safe(c.name)+'</strong><p class="muted">'+safe(c.site)+'</p>'+c.area.map((n,i)=>'<div style="display:flex;justify-content:space-between;font-size:12px"><span>Avaliação fictícia '+(i+1)+'</span><span>'+n.toFixed(1)+' cm² (inventado)</span></div><div class="bar"><div style="width:'+(n/10*100)+'%"></div></div>').join("")+'</div>').join("")+'</div>';
-}else if(page==="research"){
-view.innerHTML='<div class="grid"><div class="panel"><h2>Fontes que podem integrar o catálogo</h2><div class="row"><div><strong>IWGDF</strong><div class="muted">Diretrizes para pé relacionado ao diabetes</div></div><a href="https://iwgdfguidelines.org/guidelines-2023/" target="_blank" rel="noopener">Fonte</a></div><div class="row"><div><strong>SOBEST</strong><div class="muted">Biblioteca científica de estomaterapia</div></div><a href="https://sobest.com.br/biblioteca/" target="_blank" rel="noopener">Fonte</a></div></div><div class="panel"><h2>Validação de evidências</h2><p class="muted">O aplicativo em desenvolvimento contém contratos de origem da evidência e auditoria experimental. Esta demonstração não pesquisa PDFs nem consulta modelos.</p><span class="pill warning">IA não conectada nesta página</span></div></div>';
-}
-}
-document.addEventListener("click",event=>{const link=event.target.closest("[data-view],[data-open]");if(link){const target=link.dataset.view||link.dataset.open;if(titles[target])draw(target);}});
-draw("dashboard");
-</script>
-</body></html>
+  <div class="shell">
+    <aside class="sidebar">
+      <a href="./" class="brand"><span class="brandmark">✳</span><span>feridas<span class="branddot">.com</span><small>PRONTUÁRIO DE LESÕES</small></span></a>
+      <div class="nav-caption">NAVEGAÇÃO</div>
+      <button class="navitem active" data-view="dashboard"><span>▦</span> Visão geral</button>
+      <button class="navitem" data-view="patients"><span>♙</span> Pacientes</button>
+      <button class="navitem" data-view="lesions"><span>◉</span> Lesões</button>
+      <button class="navitem" data-view="assessments"><span>▤</span> Avaliações</button>
+      <button class="navitem" data-view="trends"><span>⌁</span> Evolução</button>
+      <button class="navitem" id="logout-button"><span>↻</span> Reiniciar demo</button><div class="sidebar-bottom"><div class="dev-pill">● MODO DEMONSTRAÇÃO</div><p>Não usar dados reais de pacientes ou para decisões assistenciais.</p></div>
+    </aside>
+    <main class="workspace">
+      <header class="topbar">
+        <div class="breadcrumb">Feridas.com <span>/</span> <strong id="breadcrumb">Visão geral</strong></div>
+        <div class="header-right"><span class="header-dot"></span> Demonstração sem servidor</div>
+      </header>
+      <section class="page">
+        <div class="page-heading">
+          <div><p class="eyebrow" id="eyebrow">PAINEL CLÍNICO</p><h1 id="page-title">Visão geral</h1><p class="subtitle" id="page-subtitle">Acompanhe registros e avaliações em um único lugar.</p></div>
+          <button class="primary-btn" id="primary-action">+ Novo paciente</button>
+        </div>
+        <div class="demo-banner" role="note"><strong>DEMONSTRAÇÃO DO FRONTEND REAL</strong> · Pacientes e lesões fictícios, dados em memória e redefinidos ao atualizar. Sem backend, banco de dados, upload de arquivos, autenticação real ou análise de IA. <strong>Não inserir informações de pacientes reais.</strong></div>
+        <div id="notice" class="notice" role="status" hidden></div>
+        <div id="content" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+  <div class="modal-backdrop" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-head"><h2 id="modal-title"></h2><button type="button" class="icon-btn" id="close-modal" aria-label="Fechar">×</button></div><form id="modal-form"><div id="modal-fields"></div><div class="modal-actions"><button type="button" class="secondary-btn" id="cancel-modal">Cancelar</button><button type="submit" class="primary-btn">Salvar</button></div></form></div></div>
+<div class="login-screen" id="login-screen" hidden>
+    <form id="login-form" class="login-card">
+      <div class="login-symbol">✳</div>
+      <h2>Bem-vindo ao feridas.com</h2>
+      <p>Entre com a senha local para acessar o prontuário experimental.</p>
+      <label for="login-password">Senha</label>
+      <input id="login-password" type="password" autocomplete="current-password" required minlength="1" />
+      <div id="login-error" role="alert" class="login-error" hidden></div>
+      <button type="submit" class="primary-btn">Entrar no aplicativo</button>
+      <small>Protótipo local — não utilizar dados reais de pacientes.</small>
+    </form>
+  </div>
+</body>
+</html>
