@@ -112,3 +112,26 @@ class EvidencePassage(Base):
     reviewed_by: Mapped[str] = mapped_column(String(100), nullable=False)
     reviewed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     applicability_notes: Mapped[str | None] = mapped_column(String(600), nullable=True)
+
+class EvidenceDocument(Base):
+    """Uploaded PDF reference, encrypted on disk, scoped to closed source catalog."""
+    __tablename__ = "evidence_documents"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    catalog_source_id: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    edition_label: Mapped[str] = mapped_column(String(100), nullable=False)
+    filename: Mapped[str] = mapped_column(String(48), nullable=False)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    page_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+class VerifiedCitation(Base):
+    """Machine checked against page text; NOT clinical applicability approval."""
+    __tablename__ = "verified_citations"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    document_id: Mapped[str] = mapped_column(ForeignKey("evidence_documents.id"), index=True)
+    page_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    excerpt: Mapped[str] = mapped_column(String(500), nullable=False)
+    excerpt_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    page_text_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    checked_by: Mapped[str] = mapped_column(String(100), nullable=False)
+    checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
