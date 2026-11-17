@@ -8,3 +8,4 @@ itsdangerous>=2.2,<3
 cryptography>=43,<48
 Pillow>=10,<13
 python-multipart>=0.0.12,<1
+pypdf>=5.0,<7
