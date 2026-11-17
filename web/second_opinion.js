@@ -10,7 +10,7 @@ async function renderSecondOpinionContext(assessmentId, parent){
   const result=await api("/assessments/"+encodeURIComponent(assessmentId)+"/evidence-readiness");
   if(!section.isConnected || state.selectedAssessment!==assessmentId)return;
   const context=result.context;
-  const observed=context.observations.map(f=>'<tr><td>'+escapeHtml(f.field_name)+'</td><td>'+escapeHtml(f.text)+'</td><td>'+escapeHtml(f.observation_source)+' / '+escapeHtml(f.human_decision)+'</td></tr>');
+  const observed=context.observations.map(f=>'<tr><td>'+escapeHtml(f.field_name)+'</td><td>'+escapeHtml(f.text)+'</td><td>'+escapeHtml(f.proposed_source)+' / '+escapeHtml(f.human_decision)+'</td></tr>');
   const reported=context.reported_clinical_data.map(d=>'<tr><td>'+escapeHtml(d.field_name)+'</td><td>'+escapeHtml(readable(d.value))+'</td><td>'+escapeHtml(d.reporter)+'</td></tr>');
   const executed=context.interventions.map(i=>'<tr><td>'+escapeHtml(i.type)+'</td><td>'+escapeHtml(i.status)+'</td><td>'+escapeHtml(i.description)+'</td></tr>');
   const missing=context.missing_sections.map(s=>'<li>'+escapeHtml(s.replaceAll("_"," "))+'</li>').join("");
@@ -19,7 +19,7 @@ async function renderSecondOpinionContext(assessmentId, parent){
     '<div class="panel-header"><h2>Base para segunda opinião</h2><span class="tiny">Somente dados rastreáveis</span></div>'+
     '<p class="muted">A separação abaixo impede que a IA apresente propostas não revisadas como observações confirmadas.</p>'+
     '<div class="assessment-card"><strong>Semiologia revisada ('+context.observations.length+')</strong>'+
-    (observed.length?table(["Campo","Observação validada","Origem / revisão"],observed):'<p class="muted">Nenhum achado visual confirmado nesta avaliação.</p>')+'</div>'+
+    (observed.length?table(["Campo","Observação validada","Origem proposta / revisão"],observed):'<p class="muted">Nenhum achado visual confirmado nesta avaliação.</p>')+'</div>'+
     '<div class="assessment-card"><strong>Anamnese registrada ('+reported.length+')</strong>'+
     (reported.length?table(["Campo","Valor registrado","Informante"],reported):'<p class="muted">Nenhum dado clínico atual registrado.</p>')+'</div>'+
     '<div class="assessment-card"><strong>Intervenções registradas ('+executed.length+')</strong>'+
