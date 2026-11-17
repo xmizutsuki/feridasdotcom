@@ -183,3 +183,7 @@ app.include_router(vision_router)
 # Experimental non-diagnostic metadata comparison for serial photos.
 from .comparison_routes import router as comparison_router
 app.include_router(comparison_router)
+
+# Structured history and treatment events; all endpoints covered by owner auth middleware.
+from .clinical_routes import router as clinical_router
+app.include_router(clinical_router)
