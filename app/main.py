@@ -187,3 +187,7 @@ app.include_router(comparison_router)
 # Structured history and treatment events; all endpoints covered by owner auth middleware.
 from .clinical_routes import router as clinical_router
 app.include_router(clinical_router)
+
+# Read-only validated-fact assembly; no automatic diagnosis/recommendations.
+from .second_opinion_routes import router as second_opinion_router
+app.include_router(second_opinion_router)
