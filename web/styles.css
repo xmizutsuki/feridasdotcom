@@ -15,3 +15,16 @@
 .photo-tile small{display:block;color:#617c71;margin-top:6px}
 .photo-upload{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0}
 .photo-upload input{font-size:12px;max-width:260px}
+
+.clinical-section{border-top:1px solid #dfe9e4;padding:23px 0 14px;margin-top:20px}
+.clinical-section .panel-header h2{font-size:18px}
+.clinical-section details{margin:16px 0;border:1px solid #e0e8e5;border-radius:9px;padding:12px}
+.clinical-section summary{cursor:pointer;color:#286c5b;font-weight:700;font-size:13px}
+.clinical-warning{background:#fff3e4;color:#6e4b18;border:1px solid #eed2aa;padding:13px 15px;border-radius:8px;margin:10px 0}
+.clinical-warning p{font-size:13px;line-height:1.5;margin:7px 0 0}
+.history-banner{border:1px solid #c3d9d0;background:#eaf6ef;color:#2c654f;padding:12px 15px;border-radius:8px;font-size:13px;margin-bottom:15px}
+.form-two-columns{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.clinical-confirm{display:flex;align-items:flex-start;gap:8px;color:#42615d;font-size:12px;margin:18px 0;line-height:1.5}
+.clinical-confirm input{margin-top:3px}
+.modal:has(.form-two-columns){width:min(100%,780px)}
+@media(max-width:600px){.form-two-columns{grid-template-columns:1fr}}
