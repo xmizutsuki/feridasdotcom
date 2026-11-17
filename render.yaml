@@ -1,0 +1,37 @@
+# Render blueprint for Feridas.com — synthetic cases only.
+# Create the PostgreSQL database in Neon and supply DATABASE_URL privately in Render.
+# Do not store passwords, secrets, or Neon URLs in this file or in GitHub.
+services:
+  - type: web
+    name: feridasdotcom-staging
+    runtime: python
+    plan: free
+    region: ohio
+    branch: feat/clinical-core-mvp
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: FERIDAS_REQUIRE_POSTGRES
+        value: "true"
+      - key: FERIDAS_DISABLE_MEDIA_UPLOADS
+        value: "true"
+      - key: FERIDAS_COOKIE_SECURE
+        value: "true"
+      - key: FERIDAS_REMOTE_IMAGE_ANALYSIS
+        value: "false"
+      - key: FERIDAS_EXPERIMENTAL_REASONING
+        value: "false"
+      - key: FERIDAS_SEMANTIC_AUDIT
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: FERIDAS_PASSWORD_HASH
+        sync: false
+      - key: FERIDAS_SESSION_SECRET
+        sync: false
+      - key: FERIDAS_IMAGE_KEY
+        sync: false
