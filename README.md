@@ -88,3 +88,13 @@ Há avisos determinísticos **experimentais** sobre determinados relatos de pior
 API: `app/clinical_routes.py`; contratos: `app/clinical_schemas.py`; regras: `app/clinical_rules.py`; tela: `web/clinical.js`; testes: `tests/test_clinical.py`. Documentação: `docs/CLINICAL_HISTORY.md`.
 
 Esta é uma implementação de protótipo com dados sintéticos. Persistem lacunas importantes: migrações, criptografia de campos do banco, autenticação por profissional, assinatura/adendos, avaliação clínica de regras e validação da aplicação.
+
+## Base para segunda opinião (nova etapa)
+
+Na tela de cada avaliação, a seção **Base para segunda opinião** reúne apenas achados semiológicos revisados pelo profissional, a última revisão de anamnese da **mesma avaliação** e registros terapêuticos com o estado planejado/realizado preservado. O sistema destaca lacunas, campos não avaliáveis, achados pendentes e rejeitados, além de fornecer a origem e o identificador das informações.
+
+Rotas autenticadas: `GET /assessments/{id}/clinical-context` e `GET /assessments/{id}/evidence-readiness`.
+
+**Ainda não existe motor de segunda opinião diagnóstica nem RAG científico funcional.** A camada de evidências é uma interface estrutural sem fontes verificadas: não apresenta hipóteses, referências inventadas ou recomendações clínicas. Nenhum processamento externo é acionado ao consultar esse painel.
+
+Detalhes: `docs/SECOND_OPINION_CONTEXT.md`, `app/second_opinion.py`, `app/second_opinion_schemas.py` e `tests/test_second_opinion.py`.
