@@ -17,7 +17,7 @@ Implementado:
 - Auditoria básica de eventos e tendência de área com cálculos determinísticos.
 - Testes de integração com informações fictícias.
 
-Interface web responsiva incluída: painel com totais, pacientes, lesões, avaliações, revisão de achados, finalização e gráfico de evolução. **Ainda não há avaliação semiológica automática nem IA.** O processamento atual de imagens apenas valida formato/dimensões e remove EXIF. O núcleo foi estruturado para recebê-los nas etapas seguintes.
+Interface web responsiva incluída: painel com totais, pacientes, lesões, avaliações, revisão de achados, finalização e gráfico de evolução. **Análise visual experimental opcional adicionada.** Ela gera propostas semiológicas com revisão humana, sem diagnóstico ou condutas. Está desligada por padrão; ver `docs/VISION.md`. O processamento de imagens continua incluindo validação de formato/dimensões e remoção de EXIF. O núcleo foi estruturado para recebê-los nas etapas seguintes.
 
 ### Executar localmente
 
@@ -64,3 +64,9 @@ O arquivo original não é preservado: a foto é normalizada para JPEG e regrava
 ## Testes
 
 Os testes usam credenciais sintéticas em `tests/conftest.py`; não são credenciais do aplicativo. `pytest -q` deve rodar após instalar dependências. O GitHub Actions executa testes a cada push e PR.
+
+## Nova etapa — rascunho visual multimodal
+
+Com uma fotografia de **teste** vinculada a uma avaliação em rascunho, a interface apresenta o recurso de análise visual. Por segurança, permanece desligado por padrão; para testá-lo com imagens sintéticas, configure explicitamente `FERIDAS_REMOTE_IMAGE_ANALYSIS=true`, `FERIDAS_VISION_MODEL` e `FERIDAS_OPENAI_API_KEY` no ambiente. O operador confirma cada envio. **Nunca envie fotos de pacientes reais neste protótipo.**
+
+O modelo apenas sugere características visuais por campo. A API valida o esquema, registra limitações e deixa tudo `pending` até revisão humana. As regras clínicas e diagnósticas, a validação científica e o histórico de planos terapêuticos ainda não foram implementados. Consulte `docs/VISION.md`.
