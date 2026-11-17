@@ -28,3 +28,7 @@
 .clinical-confirm input{margin-top:3px}
 .modal:has(.form-two-columns){width:min(100%,780px)}
 @media(max-width:600px){.form-two-columns{grid-template-columns:1fr}}
+
+/* GitHub Pages presentation of the exact prototype frontend. */
+.demo-banner{margin:0 0 22px;padding:14px 17px;background:#fff6ea;border:1px solid #eccdac;color:#82572d;border-radius:12px;font-size:13px;line-height:1.6}
+.demo-banner strong{font-weight:750}
