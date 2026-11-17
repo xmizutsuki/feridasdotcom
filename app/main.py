@@ -203,3 +203,7 @@ app.include_router(document_router)
 # Operator-authored differential drafts: structural audit only, no AI diagnoses.
 from .differential_routes import router as differential_router
 app.include_router(differential_router)
+
+# Synthetic-case-only, default-off experimental differential generation.
+from .reasoning_routes import router as reasoning_router
+app.include_router(reasoning_router)
