@@ -1,20 +1,19 @@
-# feridasdotcom
+# Feridas.com
 
-Prontuário longitudinal de lesões e suporte à segunda opinião clínica (em desenvolvimento).
+Aplicativo experimental de acompanhamento longitudinal de feridas e suporte à revisão profissional. **Não validado para cuidado de pacientes nem para armazenamento de dados reais.**
 
-> **Estado:** protótipo técnico não validado clinicamente. Não utilizar para decisões assistenciais nem inserir dados reais de pacientes até concluir segurança, governança e validação.
+## Experimente a interface real (modo demonstração)
 
-A primeira entrega implementará cadastro de pacientes pseudonimizados, lesões, avaliações, achados revisáveis, auditabilidade e testes.
+**[Abrir Feridas.com — demonstração no GitHub Pages](https://xmizutsuki.github.io/feridasdotcom/)**
 
-Documentação e instruções serão adicionadas na branch de implementação.
+O site do GitHub Pages reutiliza o **frontend real** desenvolvido na branch `feat/clinical-core-mvp`: mesmo layout, navegação, revisão de achados, anamnese, intervenções, linha do tempo e painéis de referências. Um adaptador de API (`docs/demo-api.js`) injeta casos inteiramente fictícios e permite exercitar parte dos formulários e revisões **apenas em memória**. Os dados são perdidos ao recarregar a página.
 
+**Não é o aplicativo completo:** GitHub Pages não executa FastAPI, banco de dados, autenticação real, criptografia de fotos, upload de PDF/fotos nem modelos de IA. Esses recursos exigem backend hospedado separadamente, segurança institucional e validação clínica. O ambiente de demonstração não envia dados ao servidor, salvo a navegação voluntária para sites externos de diretrizes.
 
-## Demonstração web pelo GitHub Pages
+**Para publicar:** abra [Settings → Pages](https://github.com/xmizutsuki/feridasdotcom/settings/pages) e selecione **GitHub Actions** como origem. O workflow `.github/workflows/deploy-pages.yml` publica a pasta `docs/` automaticamente; `.github/workflows/demo-check.yml` verifica sintaxe dos arquivos JavaScript e exercita os fluxos sintéticos. A execução de cada workflow pode ser conferida em [Actions](https://github.com/xmizutsuki/feridasdotcom/actions).
 
-Foi adicionada uma interface de demonstração totalmente estática em `docs/index.html`. A publicação automática é feita pela Action `.github/workflows/deploy-pages.yml` a cada alteração relevante na branch `main`.
+## Backend e desenvolvimento
 
-**Primeira ativação (exige administrador no GitHub):** abra [Settings → Pages](https://github.com/xmizutsuki/feridasdotcom/settings/pages) e, em **Build and deployment → Source**, selecione **GitHub Actions**. Depois, na aba [Actions](https://github.com/xmizutsuki/feridasdotcom/actions/workflows/deploy-pages.yml), execute novamente **Publish Feridas.com Demo (GitHub Pages)** usando *Run workflow* (branch `main`).
+A implementação da API e dos módulos clínicos experimentais está na branch `feat/clinical-core-mvp` e no [Pull Request #1](https://github.com/xmizutsuki/feridasdotcom/pull/1), mantido em rascunho. Leia as instruções e limites de segurança no README da própria branch.
 
-Quando o workflow concluir com sucesso, a demo deverá ficar em `https://xmizutsuki.github.io/feridasdotcom/`.
-
-**Limitação:** GitHub Pages publica apenas HTML/CSS/JS. Não executa a API FastAPI, não guarda avaliações, não oferece autenticação de usuários, banco de dados ou IA. Os dados nesta demo são inventados e não há armazenamento. O backend completo permanece na branch `feat/clinical-core-mvp` no PR #1 e requer uma hospedagem de aplicação separada, segurança e governança antes de uso real.
+**Não use este software para decisões assistenciais nem forneça dados de pacientes reais.**
