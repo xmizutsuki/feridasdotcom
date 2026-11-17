@@ -5,6 +5,7 @@ a specific uploaded PDF. It does NOT verify clinical applicability, accuracy,
 publisher authenticity, licensing or whether the document is current.
 """
 import hashlib
+import os
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
@@ -31,6 +32,8 @@ async def upload_document(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
+    if os.getenv("FERIDAS_DISABLE_MEDIA_UPLOADS", "false").lower() == "true":
+        raise HTTPException(status_code=503, detail="Upload de PDFs desabilitado: armazenamento durável ainda não configurado.")
     if source_id not in SOURCE_BY_ID:
         raise HTTPException(status_code=422, detail="Fonte deve constar no catálogo fechado")
     edition_label = edition_label.strip()
