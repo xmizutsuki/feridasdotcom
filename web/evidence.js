@@ -48,6 +48,7 @@ async function renderEvidenceLibrary(parent,assessmentId){
       }catch(e){output.textContent=e.message;}
     });
     $("add-evidence")?.addEventListener("click",()=>openEvidenceForm(catalog.sources));
+    renderDocumentEvidence(section,catalog.sources).catch(e=>notice("Falha no módulo PDF: "+e.message,true));
   }catch(e){section.textContent="Biblioteca indisponível: "+e.message;}
 }
 function openEvidenceForm(sources){
