@@ -98,3 +98,11 @@ Rotas autenticadas: `GET /assessments/{id}/clinical-context` e `GET /assessments
 **Ainda não existe motor de segunda opinião diagnóstica nem RAG científico funcional.** A camada de evidências é uma interface estrutural sem fontes verificadas: não apresenta hipóteses, referências inventadas ou recomendações clínicas. Nenhum processamento externo é acionado ao consultar esse painel.
 
 Detalhes: `docs/SECOND_OPINION_CONTEXT.md`, `app/second_opinion.py`, `app/second_opinion_schemas.py` e `tests/test_second_opinion.py`.
+
+## Biblioteca científica controlada (novo)
+
+Foi acrescentado um catálogo de páginas oficiais (IWGDF 2023 e biblioteca SOBEST), registro de trechos curtos com localização conferida pelo operador e busca lexical local. Também é possível localizar **candidatos de pesquisa** com base em informações explícitas registradas na anamnese atual, sem inferir diagnósticos. A interface dessa biblioteca está dentro da avaliação.
+
+Apenas identificar uma página de diretriz **não valida seu conteúdo**. Um trecho cadastrado com confirmação do operador **não equivale a verificação independente** nem comprova que se aplica ao caso. Ainda não há RAG com geração de hipóteses ou recomendações clínicas; a emissão de condutas continua desabilitada.
+
+Ver `docs/EVIDENCE_LIBRARY.md` e testes `tests/test_evidence.py` e `tests/test_evidence_context.py`. **Não use dados reais de pacientes.**
