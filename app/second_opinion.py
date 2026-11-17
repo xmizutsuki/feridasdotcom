@@ -35,7 +35,7 @@ def make_context(db: Session, assessment: Assessment) -> ContextSnapshot:
         observations.append(ValidatedObservation(
             field_name=f.field_name,
             text=f.validated_text,
-            observation_source=f.source,
+            proposed_source=f.source,
             support_at_proposal=f.support,
             human_decision=f.validation_status,
             provenance=Provenance(assessment_id=assessment.id, record_id=f.id,
