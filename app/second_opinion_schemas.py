@@ -13,7 +13,7 @@ class Provenance(BaseModel):
 class ValidatedObservation(BaseModel):
     field_name: str
     text: str
-    observation_source: Literal["image", "reported", "exam", "unknown"]
+    proposed_source: Literal["image", "reported", "exam", "unknown"]
     support_at_proposal: str
     human_decision: Literal["confirmed", "corrected"]
     provenance: Provenance
