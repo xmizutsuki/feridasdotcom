@@ -70,3 +70,9 @@ Os testes usam credenciais sintéticas em `tests/conftest.py`; não são credenc
 Com uma fotografia de **teste** vinculada a uma avaliação em rascunho, a interface apresenta o recurso de análise visual. Por segurança, permanece desligado por padrão; para testá-lo com imagens sintéticas, configure explicitamente `FERIDAS_REMOTE_IMAGE_ANALYSIS=true`, `FERIDAS_VISION_MODEL` e `FERIDAS_OPENAI_API_KEY` no ambiente. O operador confirma cada envio. **Nunca envie fotos de pacientes reais neste protótipo.**
 
 O modelo apenas sugere características visuais por campo. A API valida o esquema, registra limitações e deixa tudo `pending` até revisão humana. As regras clínicas e diagnósticas, a validação científica e o histórico de planos terapêuticos ainda não foram implementados. Consulte `docs/VISION.md`.
+
+## Qualidade das fotografias e comparações longitudinais
+
+A verificação técnica por foto agora oferece alertas experimentais de iluminação, resolução, contraste e detalhe aparente. O aplicativo apresenta recomendações de recaptura, mas não bloqueia a documentação. Na área **Evolução**, há uma comparação exploratória de metadados entre duas fotografias da mesma lesão em datas diferentes. **Não** há alinhamento espacial validado nem cálculo automático de área. Veja `docs/IMAGE_QUALITY.md`.
+
+Endpoints locais protegidos: `GET /photos/{photo_id}/quality` e `GET /photos/{current_id}/compare/{previous_id}`. Testes em `tests/test_quality.py`; é necessário conferir CI antes de mesclar.
