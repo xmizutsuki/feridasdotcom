@@ -1,8 +1,10 @@
+from tests.conftest import authenticate
 from fastapi.testclient import TestClient
 from app.main import app
 
 def test_dashboard_is_served_locally():
     with TestClient(app) as client:
+        authenticate(client)
         landing = client.get("/", follow_redirects=False)
         assert landing.status_code in (302, 307)
         assert landing.headers["location"] == "/app/"
