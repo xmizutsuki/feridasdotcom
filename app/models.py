@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from uuid import uuid4
-from sqlalchemy import String, Text, ForeignKey, DateTime, Float, Integer, CheckConstraint
+from sqlalchemy import String, Text, ForeignKey, DateTime, Float, Integer, CheckConstraint, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .db import Base
 
@@ -73,3 +73,28 @@ class Photo(Base):
     height: Mapped[int] = mapped_column(Integer, nullable=False)
     media_type: Mapped[str] = mapped_column(String(40), default="image/jpeg")
     uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+class ClinicalHistoryRecord(Base):
+    """Append-only clinical-history revisions. No direct update/delete endpoint."""
+    __tablename__ = "clinical_history_records"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    assessment_id: Mapped[str] = mapped_column(ForeignKey("assessments.id"), index=True, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    recorder_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    reporter: Mapped[str] = mapped_column(String(30), nullable=False)
+    data: Mapped[dict] = mapped_column(JSON, nullable=False)
+    alerts: Mapped[list] = mapped_column(JSON, nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+class TreatmentIntervention(Base):
+    """Each planned/performed event is immutable at API level."""
+    __tablename__ = "treatment_interventions"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    assessment_id: Mapped[str] = mapped_column(ForeignKey("assessments.id"), index=True, nullable=False)
+    type: Mapped[str] = mapped_column(String(30), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    performed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    recorder_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
