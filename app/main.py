@@ -199,3 +199,7 @@ app.include_router(evidence_router)
 # Source-document matching and citation verification (no clinical advice).
 from .document_routes import router as document_router
 app.include_router(document_router)
+
+# Operator-authored differential drafts: structural audit only, no AI diagnoses.
+from .differential_routes import router as differential_router
+app.include_router(differential_router)
