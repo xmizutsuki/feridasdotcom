@@ -13,16 +13,16 @@ async function renderExperimentalReasoning(parent, assessmentId){
   const citationSets=await Promise.all(documents.map(d=>api("/evidence/documents/"+encodeURIComponent(d.id)+"/citations")));
   const citations=citationSets.flat();
   const selections=citations.map(c=>'<label class="clinical-confirm"><input type="checkbox" name="citation_id" value="'+escapeHtml(c.id)+'"> Página '+escapeHtml(c.page_number)+': '+escapeHtml(c.excerpt.slice(0,130))+'</label>').join("");
-  section.innerHTML='<div class="panel-header"><h2>Raciocínio assistido — laboratório sintético</h2><span class="tiny">'+(status.enabled?"Configurado":"Desabilitado")+'</span></div>'+
+  section.innerHTML='<div class="panel-header"><h2>Raciocínio assistido — laboratório sintético</h2><span class="tiny">'+(status.enabled&&status.semantic_reviewer_enabled?"Gerador e auditor configurados":"Indisponível para geração")+'</span></div>'+
     '<p class="muted">Gera hipóteses experimentais, argumentos favoráveis e contrários, lacunas e pontos a investigar. Nunca produz diagnóstico definitivo, recomendações terapêuticas ou validação clínica.</p>'+
     '<form id="reasoning-form" class="assessment-card">'+
       '<p class="tiny">Selecione referências literalmente conferidas contra o PDF carregado. A conferência textual não atesta aplicabilidade clínica.</p>'+
       (selections||'<p class="muted">Nenhuma citação de PDF verificada disponível.</p>')+
       '<label class="clinical-confirm"><input type="checkbox" name="synthetic" required> Confirmo que todos os dados desta avaliação são fictícios e de teste.</label>'+
       '<label class="clinical-confirm"><input type="checkbox" name="external" required> Autorizo o envio externo dos dados fictícios selecionados.</label>'+
-      '<button type="submit" class="secondary-btn" '+(!status.enabled||!citations.length?"disabled":"")+'>Gerar hipóteses experimentais</button>'+
+      '<button type="submit" class="secondary-btn" '+(!status.enabled||!status.semantic_reviewer_enabled||!citations.length?"disabled":"")+'>Gerar hipóteses experimentais</button>'+
     '</form><div id="reasoning-result" aria-live="polite"></div>'+
-    '<p class="tiny">Mesmo com vínculos corretos, este sistema não é capaz de verificar autonomamente a correção clínica ou a segurança da hipótese. Não insira dados de pacientes reais.</p>';
+    '<p class="tiny">A revisão por um segundo modelo é experimental e pode errar. Mesmo com vínculos corretos, não há validação clínica nem autorização de conduta. Não insira dados reais.</p>';
   $("reasoning-form")?.addEventListener("submit",async event=>{
     event.preventDefault();
     const form=event.currentTarget,button=form.querySelector('button[type="submit"]');
@@ -50,10 +50,12 @@ async function renderExperimentalReasoning(parent, assessmentId){
         '<p><strong>Dados faltantes:</strong> '+h.missing_information.map(escapeHtml).join("; ")+'</p>'+
         '<p><strong>Riscos a investigar:</strong> '+h.contraindications_to_check.map(escapeHtml).join("; ")+'</p>'+
         '<p><strong>Incerteza:</strong> '+escapeHtml(h.uncertainty_note)+'</p>'+
-        (h.blocking_issues.length?'<div class="clinical-warning">'+h.blocking_issues.map(escapeHtml).join("; ")+'</div>':'')+'</div>'
+        (h.blocking_issues.length?'<div class="clinical-warning">'+h.blocking_issues.map(escapeHtml).join("; ")+'</div>':'')+
+        '<p class="tiny">Auditoria semântica: '+escapeHtml(h.semantic_audit_status||"não realizada")+'</p>'+
+        (h.semantic_audit_issues?.length?'<div class="clinical-warning">'+h.semantic_audit_issues.map(escapeHtml).join("; ")+'</div>':'')+'</div>'
        ).join("")+
-       '<p class="tiny">Modelo de teste: '+escapeHtml(result.model)+' · Validação clínica: não · Recomendações: desabilitadas.</p>';
+       '<p class="tiny">Modelo gerador: '+escapeHtml(result.model)+' · Revisor independente: '+escapeHtml(result.semantic_audit_model||"não executado")+' · Avaliação semântica executada: '+(result.semantic_audit_performed?"sim":"não")+' · Validação clínica: não · Recomendações: desabilitadas.</p>';
     }catch(err){output.textContent="Rascunho não gerado: "+err.message;}
-    finally{button.disabled=!status.enabled;}
+    finally{button.disabled=!status.enabled||!status.semantic_reviewer_enabled;}
   });
 }
