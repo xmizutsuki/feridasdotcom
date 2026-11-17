@@ -20,5 +20,8 @@ jobs:
           cache: "pip"
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
+      - name: Check frontend JavaScript syntax
+        run: |
+          for script in web/*.js; do node --check "$script"; done
       - name: Run API and web tests
         run: python -m pytest -q
