@@ -4,7 +4,7 @@ let csrfToken = "";
 const labels = {dashboard:"Visão geral",patients:"Pacientes",lesions:"Lesões",assessments:"Avaliações",trends:"Evolução"};
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const date = (d) => d ? new Date(d).toLocaleDateString("pt-BR") : "—";
-const state = {view:"dashboard",patients:[],lesions:[],assessments:[],selectedPatient:"",selectedLesion:"",selectedAssessment:"",findings:[]};
+const state = {view:"dashboard",patients:[],lesions:[],assessments:[],selectedPatient:"",selectedLesion:"l2",selectedAssessment:"a3",findings:[]};
 async function api(path, options={}) {
   const isForm = options.body instanceof FormData;
   const method = (options.method || "GET").toUpperCase();
@@ -187,6 +187,7 @@ $("login-form").addEventListener("submit",async(ev)=>{
   }catch(e){showLogin(e.message);}
 });
 $("logout-button").addEventListener("click",async()=>{
+  if(window.FERIDAS_DEMO){window.location.reload();return;}
   try{await api("/auth/logout",{method:"POST"});}catch(e){}
   csrfToken="";
   state.patients=[];state.lesions=[];state.assessments=[];state.findings=[];
