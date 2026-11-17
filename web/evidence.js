@@ -1,6 +1,6 @@
 "use strict";
 /* Local bibliographic research. No patient data sent outside this application. */
-async function renderEvidenceLibrary(parent){
+async function renderEvidenceLibrary(parent,assessmentId){
   if(!parent?.isConnected)return;
   const section=document.createElement("section");
   section.className="clinical-section";
@@ -16,6 +16,7 @@ async function renderEvidenceLibrary(parent){
         '<li><a href="'+escapeHtml(s.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(s.title)+'</a> · '+escapeHtml(s.edition)+
         ' · catálogo (sem evidência clínica verificada)</li>').join("")+'</ul></div>'+
       '<div class="assessment-card"><h3>Pesquisar trechos</h3><form id="evidence-search"><div class="form-group"><label for="evidence-query">Termos para busca local</label><input id="evidence-query" name="query" maxlength="180" minlength="2" required placeholder="Ex.: offloading, infection, compression"></div><button class="secondary-btn" type="submit">Pesquisar</button></form><div id="evidence-results" aria-live="polite"></div></div>'+
+      '<div class="assessment-card"><h3>Trechos candidatos para esta avaliação</h3><p class="tiny">Busca orientada exclusivamente por informações relatadas na anamnese atual, sem inferir diagnóstico.</p><button class="secondary-btn" type="button" id="evidence-candidates">Consultar candidatos</button><div id="candidate-results" aria-live="polite"></div></div>'+
       '<button class="secondary-btn" type="button" id="add-evidence">Registrar trecho conferido</button>'+
       '<p class="tiny">Este módulo não produz diagnóstico diferencial nem recomenda tratamento. A correspondência lexical não implica indicação para a lesão avaliada.</p>';
     $("evidence-search")?.addEventListener("submit",async e=>{
@@ -30,6 +31,20 @@ async function renderEvidenceLibrary(parent){
           ' · Termos em comum: '+m.lexical_score+'</p><a href="'+escapeHtml(m.publisher_url)+'" target="_blank" rel="noopener noreferrer">Abrir documento da editora</a>'+
           '<p class="tiny">Não é uma recomendação para o caso; confira o texto original e a aplicabilidade.</p></div>').join("") :
           '<p class="muted">Nenhum trecho cadastrado corresponde aos termos. Não interpretar ausência de resultados como ausência de evidência científica.</p>';
+      }catch(e){output.textContent=e.message;}
+    });
+    $("evidence-candidates")?.addEventListener("click",async()=>{
+      const output=$("candidate-results");output.textContent="Procurando trechos candidatos...";
+      try {
+        const result=await api("/evidence/assessments/"+encodeURIComponent(assessmentId)+"/candidates");
+        const topics=result.search_topics_from_explicit_reported_data;
+        output.innerHTML='<p class="tiny">Temas de busca: '+(topics.length?topics.map(escapeHtml).join(", "):"nenhum tema inferível de dados explícitos")+'</p>'+
+          (result.matches.length?result.matches.map(m=>
+            '<div class="assessment-card"><strong>'+escapeHtml(m.publisher_title)+'</strong><p>'+escapeHtml(m.passage.excerpt)+'</p>'+
+            '<p class="tiny">Localização registrada: '+escapeHtml(m.passage.source_location)+'</p>'+
+            '<a href="'+escapeHtml(m.publisher_url)+'" target="_blank" rel="noopener noreferrer">Abrir fonte</a></div>').join(""):
+            '<p class="muted">Sem trechos correspondentes cadastrados. Isso não significa ausência de evidência ou ausência de risco.</p>')+
+          '<p class="tiny">Aplicabilidade clínica não validada. Nenhuma conduta foi gerada.</p>';
       }catch(e){output.textContent=e.message;}
     });
     $("add-evidence")?.addEventListener("click",()=>openEvidenceForm(catalog.sources));
