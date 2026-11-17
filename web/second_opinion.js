@@ -35,4 +35,5 @@ async function renderSecondOpinionContext(assessmentId, parent){
     ' · Histórico atual: '+escapeHtml(context.history_revision===null?"não registrado":"revisão "+context.history_revision)+
     ' · Sem envio externo nesta visualização.</p>';
   renderDifferentialAudit(section,assessmentId,context).catch(e=>notice('Falha na auditoria diferencial: '+e.message,true));
+  renderExperimentalReasoning(section,assessmentId).catch(e=>notice('Falha ao carregar laboratório sintético: '+e.message,true));
 }
