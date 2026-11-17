@@ -175,3 +175,7 @@ app.mount('/app', StaticFiles(directory=Path(__file__).resolve().parent.parent /
 # Mandatory single-owner access control and private media routes.
 from .secure_routes import install_security
 install_security(app)
+
+# Optional multimodal visual draft. Authentication middleware applies to these routes too.
+from .vision_routes import router as vision_router
+app.include_router(vision_router)
