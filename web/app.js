@@ -63,6 +63,9 @@ async function renderReview(){
   html+='<h3>Fotografias da avaliação</h3><p class="tiny">Imagens privadas, reprocessadas sem EXIF e protegidas por criptografia em disco.</p>';
   if(photos.length)html+='<div class="photos-grid">'+photos.map(p=>'<div class="photo-tile"><img loading="lazy" alt="Fotografia clínica cadastrada" src="/photos/'+encodeURIComponent(p.id)+'"><small>'+escapeHtml(p.width)+' × '+escapeHtml(p.height)+' pixels</small></div>').join("")+'</div>';
   else html+='<p class="muted">Nenhuma fotografia enviada.</p>';
+  if(a.status!=="validated" && photos.length) {
+    html+='<div class="assessment-card"><h3>Análise visual experimental</h3><p>Rascunho morfológico: não diagnostica nem substitui exame físico. Envio externo depende de autorização explícita.</p><label class="tiny"><input type="checkbox" id="vision-consent"> Confirmo autorização para processar externamente esta fotografia fictícia.</label><div class="review-actions"><button class="secondary-btn" id="analyze-photo" '+(state.findings.length?'disabled':'')+'>Gerar descrição preliminar</button></div><p class="tiny">Recurso desabilitado no servidor até configuração voluntária. Não usar imagens reais.</p></div>';
+  }
   if(a.status!=="validated")html+='<form id="photo-upload" class="photo-upload"><input type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-label="Selecionar fotografia" required><button class="secondary-btn" type="submit">Adicionar fotografia</button></form>';
   el.innerHTML=html;
   $("photo-upload")?.addEventListener("submit",async(ev)=>{
@@ -73,6 +76,16 @@ async function renderReview(){
       await renderReview();
       notice("Fotografia criptografada e vinculada à avaliação.");
     }catch(e){notice(e.message,true);}
+  });
+  $("analyze-photo")?.addEventListener("click",async()=>{
+    if(!$("vision-consent").checked)return notice("Confirme o envio externo antes de analisar.",true);
+    const btn=$("analyze-photo");
+    btn.disabled=true;btn.textContent="Analisando...";
+    try {
+      const result=await api("/assessments/"+encodeURIComponent(a.id)+"/analyze-image?photo_id="+encodeURIComponent(photos[0].id)+"&confirm_external_processing=true",{method:"POST"});
+      await renderReview();
+      notice(result.needs_better_image?"Imagem limitada: "+result.capture_guidance:"Rascunho visual gerado. Revise cada achado.");
+    }catch(e){notice(e.message,true);btn.disabled=false;btn.textContent="Gerar descrição preliminar";}
   });
   $("add-finding")?.addEventListener("click",()=>modalFinding(a.id));
   $("finalize-assessment")?.addEventListener("click",async()=>{const reviewer=window.prompt("Identificação do revisor (apenas fictícia neste protótipo):","REVISOR-TESTE");if(!reviewer?.trim())return;try{await api("/assessments/"+encodeURIComponent(a.id)+"/finalize?reviewer="+encodeURIComponent(reviewer.trim()),{method:"POST"});await reload("Avaliação finalizada.");}catch(e){notice(e.message,true);}});
