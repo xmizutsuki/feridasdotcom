@@ -34,4 +34,5 @@ async function renderSecondOpinionContext(assessmentId, parent){
     '<p class="tiny">Modelo: '+escapeHtml(context.schema_version)+' · Status: '+escapeHtml(context.assessment_status)+
     ' · Histórico atual: '+escapeHtml(context.history_revision===null?"não registrado":"revisão "+context.history_revision)+
     ' · Sem envio externo nesta visualização.</p>';
+  renderDifferentialAudit(section,assessmentId,context).catch(e=>notice('Falha na auditoria diferencial: '+e.message,true));
 }
