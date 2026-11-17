@@ -18,7 +18,7 @@
       <button class="navitem" data-view="lesions"><span>◉</span> Lesões</button>
       <button class="navitem" data-view="assessments"><span>▤</span> Avaliações</button>
       <button class="navitem" data-view="trends"><span>⌁</span> Evolução</button>
-      <div class="sidebar-bottom"><div class="dev-pill">● MODO PROTÓTIPO</div><p>Não usar dados reais de pacientes ou para decisões assistenciais.</p></div>
+      <button class="navitem" id="logout-button"><span>⇥</span> Sair</button><div class="sidebar-bottom"><div class="dev-pill">● MODO PROTÓTIPO</div><p>Não usar dados reais de pacientes ou para decisões assistenciais.</p></div>
     </aside>
     <main class="workspace">
       <header class="topbar">
@@ -36,5 +36,17 @@
     </main>
   </div>
   <div class="modal-backdrop" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-head"><h2 id="modal-title"></h2><button type="button" class="icon-btn" id="close-modal" aria-label="Fechar">×</button></div><form id="modal-form"><div id="modal-fields"></div><div class="modal-actions"><button type="button" class="secondary-btn" id="cancel-modal">Cancelar</button><button type="submit" class="primary-btn">Salvar</button></div></form></div></div>
+<div class="login-screen" id="login-screen" hidden>
+    <form id="login-form" class="login-card">
+      <div class="login-symbol">✳</div>
+      <h2>Bem-vindo ao feridas.com</h2>
+      <p>Entre com a senha local para acessar o prontuário experimental.</p>
+      <label for="login-password">Senha</label>
+      <input id="login-password" type="password" autocomplete="current-password" required minlength="1" />
+      <div id="login-error" role="alert" class="login-error" hidden></div>
+      <button type="submit" class="primary-btn">Entrar no aplicativo</button>
+      <small>Protótipo local — não utilizar dados reais de pacientes.</small>
+    </form>
+  </div>
 </body>
 </html>
