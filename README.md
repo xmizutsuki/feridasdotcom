@@ -106,3 +106,13 @@ Foi acrescentado um catálogo de páginas oficiais (IWGDF 2023 e biblioteca SOBE
 Apenas identificar uma página de diretriz **não valida seu conteúdo**. Um trecho cadastrado com confirmação do operador **não equivale a verificação independente** nem comprova que se aplica ao caso. Ainda não há RAG com geração de hipóteses ou recomendações clínicas; a emissão de condutas continua desabilitada.
 
 Ver `docs/EVIDENCE_LIBRARY.md` e testes `tests/test_evidence.py` e `tests/test_evidence_context.py`. **Não use dados reais de pacientes.**
+
+## PDF científico local e auditoria de hipóteses (novo marco)
+
+O aplicativo agora permite **enviar PDFs científicos autorizados ou fictícios** (até 6 MB e 100 páginas), guardá-los criptografados e conferir se uma citação curta consta do texto extraído de determinada página. A confirmação registra o identificador do arquivo e hashes do documento, do trecho e da página. Essa conferência de correspondência textual **não** prova autenticidade, qualidade da diretriz ou aplicabilidade clínica.
+
+Foi adicionada uma tela para o profissional preencher hipóteses **manualmente** e testar se os vínculos com observações revisadas e citações registradas são válidos. O resultado é uma **auditoria estrutural**, não diagnóstico, recomendação, comprovação científica ou autorização terapêutica.
+
+Dependências: `pip install -r requirements.txt`; testes de PDFs sintéticos exigem `pip install -r requirements-dev.txt`. Arquivos principais: `app/pdf_evidence.py`, `app/document_routes.py`, `app/differential_routes.py`, `web/document_evidence.js`, `web/differential.js`, `tests/test_document_ingestion.py`. Veja `docs/PDF_CITATIONS_AND_DIFFERENTIAL.md`.
+
+**Importante:** não inserir documentos com dados de pacientes, não expor o servidor e não usar esta versão para decisões de cuidado.
