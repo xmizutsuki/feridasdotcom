@@ -1,0 +1,41 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const path=require("node:path");
+const vm=require("node:vm");
+(async()=>{
+  const root=path.join(__dirname,"..");
+  const doc=fs.readFileSync(path.join(root,"docs/index.html"),"utf8");
+  assert.match(doc,/DEMONSTRAÇÃO DO FRONTEND REAL/);
+  for(const name of ["demo-api.js","app.js","styles.css","clinical.js","second_opinion.js","evidence.js","document_evidence.js","differential.js","reasoning.js"]){
+    assert.ok(fs.existsSync(path.join(root,"docs",name)),name);
+    assert.ok(doc.includes("./"+name),"referenced: "+name);
+  }
+  const box={URL,Response,location:{href:"https://example.org/feridasdotcom/",pathname:"/feridasdotcom/"},console,Math,Date};
+  box.window=box;
+  vm.runInNewContext(fs.readFileSync(path.join(root,"docs/demo-api.js"),"utf8"),box);
+  const api=async(route,options)=>{const r=await box.fetch(route,options);return {status:r.status,body:await r.json()}};
+  const post=(data)=>({method:"POST",body:JSON.stringify(data)});
+  assert.equal((await api("/auth/session")).status,200);
+  assert.equal((await api("/patients")).body.length,3);
+  assert.equal((await api("/patients/p1/lesions")).body.length,1);
+  const al=await api("/assessments/a3/findings");
+  assert.equal(al.body[0].validation_status,"pending");
+  const noFinal=await api("/assessments/a3/finalize",post({}));
+  assert.equal(noFinal.status,422);
+  const changed=await api("/findings/f3/review",post({decision:"confirmed",reviewer:"DEMO"}));
+  assert.equal(changed.status,200);
+  assert.equal((await api("/assessments/a3/finalize",post({}))).status,200);
+  const add=await api("/patients",post({pseudonym:"PESSOA-FICTICIA-004"}));
+  assert.equal(add.status,201);
+  assert.equal((await api("/patients")).body.length,4);
+  const ctx=await api("/assessments/a3/evidence-readiness");
+  assert.equal(ctx.body.context.observations.length,1);
+  assert.equal(ctx.body.reasoning_executed,false);
+  assert.equal((await api("/assessments/reasoning/status")).body.enabled,false);
+  assert.equal((await api("/assessments/a3/reasoning-draft",post({}))).status,503);
+  assert.equal((await api("/evidence/documents",post({}))).status,503);
+  assert.equal((await api("/assessments/a3/photos",post({}))).status,503);
+  assert.ok(!doc.includes('src="/app/'));
+  console.log("Frontend real: arquivos completos; API demo: fluxos testados e IA/upload bloqueados.");
+})().catch(err=>{console.error(err);process.exitCode=1});
