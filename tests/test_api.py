@@ -1,3 +1,4 @@
+from tests.conftest import authenticate
 import os
 import tempfile
 from pathlib import Path
@@ -11,6 +12,7 @@ from app.main import app
 
 def test_workflow_and_audit():
     with TestClient(app) as client:
+        authenticate(client)
         assert client.get("/health").json()["clinical_validation"] is False
         patient = client.post("/patients", json={"pseudonym": "TEST-001"})
         assert patient.status_code == 201
@@ -44,6 +46,7 @@ def test_workflow_and_audit():
 
 def test_area_requires_method_and_no_negative_area():
     with TestClient(app) as client:
+        authenticate(client)
         pid = client.post("/patients", json={"pseudonym":"TEST-002"}).json()["id"]
         lid = client.post("/lesions", json={"patient_id":pid,"location":"pé"}).json()["id"]
         assert client.post("/assessments", json={"lesion_id":lid,"area_cm2":10}).status_code == 422
