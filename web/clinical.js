@@ -68,6 +68,7 @@ async function renderClinicalSection(assessment,element){
  const region=document.createElement("div");
  region.id="clinical-region";region.innerHTML=html;
  element.append(region);
+ renderSecondOpinionContext(assessment.id,region).catch(e=>notice("Falha ao carregar o contexto: "+e.message,true));
  $("history-new")?.addEventListener("click",()=>openHistoryForm(assessment.id));
  $("intervention-new")?.addEventListener("click",()=>openInterventionForm(assessment.id));
 }
