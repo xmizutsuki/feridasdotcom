@@ -66,15 +66,24 @@ async function renderReview(){
   if(a.status!=="validated" && photos.length) {
     html+='<div class="assessment-card"><h3>Análise visual experimental</h3><p>Rascunho morfológico: não diagnostica nem substitui exame físico. Envio externo depende de autorização explícita.</p><label class="tiny"><input type="checkbox" id="vision-consent"> Confirmo autorização para processar externamente esta fotografia fictícia.</label><div class="review-actions"><button class="secondary-btn" id="analyze-photo" '+(state.findings.length?'disabled':'')+'>Gerar descrição preliminar</button></div><p class="tiny">Recurso desabilitado no servidor até configuração voluntária. Não usar imagens reais.</p></div>';
   }
+  if(photos.length)html+='<div id="photo-quality"><h3>Qualidade técnica da fotografia</h3><p class="tiny">Indicadores experimentais; não atestam adequação clínica nem permitem medir cm².</p><button class="secondary-btn" id="check-photo-quality" type="button">Verificar imagem</button><div id="quality-results"></div></div>';
   if(a.status!=="validated")html+='<form id="photo-upload" class="photo-upload"><input type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-label="Selecionar fotografia" required><button class="secondary-btn" type="submit">Adicionar fotografia</button></form>';
   el.innerHTML=html;
+  $("check-photo-quality")?.addEventListener("click",async()=>{
+    const output=$("quality-results");output.textContent="Analisando a qualidade técnica...";
+    try{
+      const reports=await Promise.all(photos.map(p=>api("/photos/"+encodeURIComponent(p.id)+"/quality")));
+      output.innerHTML=reports.map((q,i)=>'<div class="assessment-card"><strong>Fotografia '+(i+1)+'</strong><p>Resolução: '+q.width+'×'+q.height+' · Brilho: '+q.brightness_mean+' · Contraste: '+q.brightness_std+'</p>'+(q.warnings.length?'<ul>'+q.warnings.map(w=>'<li>'+escapeHtml(w)+'</li>').join("")+'</ul>':'<p>Nenhum alerta técnico detectado pelas regras experimentais.</p>')+'<p class="tiny">Mensuração quantitativa não autorizada; método de calibração não validado.</p></div>').join("");
+    }catch(e){output.textContent=e.message;}
+  });
   $("photo-upload")?.addEventListener("submit",async(ev)=>{
     ev.preventDefault();
     const form=new FormData(ev.currentTarget);
     try{
-      await api("/assessments/"+encodeURIComponent(a.id)+"/photos",{method:"POST",body:form});
+      const uploaded=await api("/assessments/"+encodeURIComponent(a.id)+"/photos",{method:"POST",body:form});
       await renderReview();
-      notice("Fotografia criptografada e vinculada à avaliação.");
+      const warn=uploaded.quality?.warnings?.length ? " Alertas de qualidade: "+uploaded.quality.warnings.join(" ") : "";
+      notice("Fotografia criptografada e vinculada à avaliação."+warn,!!warn);
     }catch(e){notice(e.message,true);}
   });
   $("analyze-photo")?.addEventListener("click",async()=>{
