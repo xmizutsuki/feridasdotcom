@@ -116,3 +116,11 @@ Foi adicionada uma tela para o profissional preencher hipóteses **manualmente**
 Dependências: `pip install -r requirements.txt`; testes de PDFs sintéticos exigem `pip install -r requirements-dev.txt`. Arquivos principais: `app/pdf_evidence.py`, `app/document_routes.py`, `app/differential_routes.py`, `web/document_evidence.js`, `web/differential.js`, `tests/test_document_ingestion.py`. Veja `docs/PDF_CITATIONS_AND_DIFFERENTIAL.md`.
 
 **Importante:** não inserir documentos com dados de pacientes, não expor o servidor e não usar esta versão para decisões de cuidado.
+
+## Raciocínio diferencial experimental (somente cenários sintéticos)
+
+O protótipo agora contém um adaptador opcional para geração de **hipóteses diferenciais preliminares** com IA, estruturadas em argumentos favoráveis e contrários, IDs de evidências, informações faltantes e contraindicações a investigar. Não fornece indicações de tratamento. O módulo fica **desligado por padrão**, requer confirmação do uso de dados inteiramente fictícios e autorização explícita de processamento externo.
+
+A resposta do modelo passa por auditoria de IDs de achados humanos revisados e citações literais reconferidas nos PDFs. **Isso verifica vínculos, não a correção clínica dos argumentos**: as hipóteses permanecem não validadas e não podem orientar cuidados reais. Avisos urgentes detectados nas regras existentes bloqueiam a execução, mas a ausência desses avisos não exclui emergências.
+
+Configuração opcional em `.env.example`: `FERIDAS_EXPERIMENTAL_REASONING=true`, `FERIDAS_REASONING_MODEL` e `FERIDAS_OPENAI_API_KEY`. Use somente dados sintéticos. Ver `docs/EXPERIMENTAL_REASONING.md`.
