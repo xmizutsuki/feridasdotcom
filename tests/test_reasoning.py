@@ -9,6 +9,7 @@ from reportlab.pdfgen.canvas import Canvas
 from fastapi.testclient import TestClient
 from app.main import app
 from app.reasoning_schemas import ReasoningDraft
+from app.semantic_audit import SemanticAuditDraft
 from tests.conftest import authenticate
 
 QUOTE = "Synthetic document text used exclusively for testing the provenance of scientific statements."
@@ -90,6 +91,24 @@ def test_guard_blocks_urgent_case_without_remote_call(monkeypatch):
         assert client.post(f"/assessments/{a}/reasoning-draft",json=request(c)).status_code==409
         model.assert_not_awaited()
 
+def fake_review(citation_id, verdict="supported", population="yes"):
+    return SemanticAuditDraft.model_validate({
+        "hypotheses":[{
+            "hypothesis_index":0,
+            "verdicts":[{
+                "citation_id":citation_id,
+                "verdict":verdict,
+                "rationale":"Synthetic review placeholder, not clinical evidence.",
+                "population_applicable":population,
+                "contraindication_conflict":False
+            }],
+            "unsupported_clinical_assertions":[],
+            "unsafe_or_overconfident_language":False,
+            "missing_critical_clinical_information":[]
+        }],
+        "limitations":["Synthetic independent structural exercise only"]
+    })
+
 def test_model_output_does_not_become_validated_diagnosis(monkeypatch):
     with TestClient(app) as client:
         authenticate(client)
@@ -97,10 +116,16 @@ def test_model_output_does_not_become_validated_diagnosis(monkeypatch):
         monkeypatch.setattr("app.reasoning_routes.enabled",lambda:True)
         model=AsyncMock(return_value=(fake_draft(f,h,c),"mock-test"))
         monkeypatch.setattr("app.reasoning_routes.generate_draft",model)
+        monkeypatch.setattr("app.reasoning_routes.semantic_enabled",lambda:True)
+        reviewer=AsyncMock(return_value=(fake_review(c),"independent-review-model"))
+        monkeypatch.setattr("app.reasoning_routes.review_semantics",reviewer)
         result=client.post(f"/assessments/{a}/reasoning-draft",json=request(c))
         assert result.status_code==200,result.text
         data=result.json()
         assert data["status"]=="review_required"
+        assert data["semantic_audit_performed"] is True
+        assert data["hypotheses"][0]["semantic_audit_status"]=="reviewer_supported"
+        assert reviewer.await_count==1
         assert data["clinical_validation"] is False
         assert data["therapeutic_recommendations_enabled"] is False
         assert data["hypotheses"][0]["clinically_validated"] is False
@@ -135,3 +160,53 @@ def test_unverified_citation_rejected_before_model(monkeypatch):
 def test_reasoning_requires_authentication():
     with TestClient(app) as client:
         assert client.get("/assessments/reasoning/status").status_code==401
+
+def test_missing_independent_reviewer_blocks_even_valid_structural_links(monkeypatch):
+    with TestClient(app) as client:
+        authenticate(client)
+        a,f,h,c=setup_case(client)
+        monkeypatch.setattr("app.reasoning_routes.enabled",lambda:True)
+        monkeypatch.setattr("app.reasoning_routes.semantic_enabled",lambda:False)
+        monkeypatch.setattr("app.reasoning_routes.generate_draft",
+                            AsyncMock(return_value=(fake_draft(f,h,c),"generator-test")))
+        response=client.post(f"/assessments/{a}/reasoning-draft",json=request(c))
+        assert response.status_code==200,response.text
+        data=response.json()
+        assert data["status"]=="blocked"
+        assert data["semantic_audit_performed"] is False
+        assert data["hypotheses"][0]["semantic_audit_status"]=="blocked"
+        assert data["clinical_validation"] is False
+
+def test_semantic_contradiction_blocks_even_with_valid_citation_id(monkeypatch):
+    with TestClient(app) as client:
+        authenticate(client)
+        a,f,h,c=setup_case(client)
+        monkeypatch.setattr("app.reasoning_routes.enabled",lambda:True)
+        monkeypatch.setattr("app.reasoning_routes.semantic_enabled",lambda:True)
+        monkeypatch.setattr("app.reasoning_routes.generate_draft",
+                            AsyncMock(return_value=(fake_draft(f,h,c),"generator-test")))
+        monkeypatch.setattr("app.reasoning_routes.review_semantics",
+                            AsyncMock(return_value=(fake_review(c,"contradicted"),"reviewer-test")))
+        response=client.post(f"/assessments/{a}/reasoning-draft",json=request(c))
+        assert response.status_code==200,response.text
+        data=response.json()
+        assert data["status"]=="blocked"
+        assert data["semantic_audit_performed"] is True
+        assert data["hypotheses"][0]["semantic_audit_status"]=="blocked"
+        assert data["semantic_evidence_verified"] is False
+
+def test_semantic_reviewer_error_fails_closed(monkeypatch):
+    with TestClient(app) as client:
+        authenticate(client)
+        a,f,h,c=setup_case(client)
+        monkeypatch.setattr("app.reasoning_routes.enabled",lambda:True)
+        monkeypatch.setattr("app.reasoning_routes.semantic_enabled",lambda:True)
+        monkeypatch.setattr("app.reasoning_routes.generate_draft",
+                            AsyncMock(return_value=(fake_draft(f,h,c),"generator-test")))
+        monkeypatch.setattr("app.reasoning_routes.review_semantics",
+                            AsyncMock(side_effect=RuntimeError("Mock provider unavailable")))
+        response=client.post(f"/assessments/{a}/reasoning-draft",json=request(c))
+        assert response.status_code==200,response.text
+        assert response.json()["status"]=="blocked"
+        assert response.json()["semantic_audit_performed"] is False
+        assert response.json()["hypotheses"][0]["semantic_audit_status"]=="blocked"
