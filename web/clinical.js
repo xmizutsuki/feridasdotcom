@@ -98,3 +98,21 @@ function openInterventionForm(assessmentId){
    })});
  });
 }
+
+async function renderClinicalTimeline(lesionId){
+ const host=$("clinical-timeline");
+ if(!host)return;
+ const rows=await api("/lesions/"+encodeURIComponent(lesionId)+"/clinical-timeline");
+ if(!host.isConnected||state.selectedLesion!==lesionId)return;
+ host.innerHTML='<div class="panel-header"><h2>Linha do tempo clínica</h2><span class="tiny">Dados registrados, sem interpretação automatizada</span></div>'+
+ (rows.length?rows.map(item=>{
+   const data=item.history?.data||{};
+   const alerts=item.history?.alerts||[];
+   return '<div class="assessment-card"><strong>'+date(item.captured_at)+' · '+escapeHtml(item.assessment_status)+'</strong>'+
+   '<p class="tiny">Dor: '+escapeHtml(readable(data.pain_score))+' · Febre relatada: '+escapeHtml(readable(data.fever_reported))+' · Exsudato: '+escapeHtml(readable(data.exudate_amount))+'</p>'+
+   '<p class="tiny">Intervenções registradas: '+item.interventions.length+' · Avisos: '+alerts.length+'</p>'+
+   alerts.map(a=>'<div class="clinical-warning">'+escapeHtml(a.message)+'</div>').join("")+
+   (item.interventions.length?'<p class="tiny">'+item.interventions.map(x=>escapeHtml(x.type)+': '+escapeHtml(x.status)).join(' | ')+'</p>':'')+
+   '</div>';
+ }).join(""):empty("Sem histórico clínico","Registre anamnese e intervenções nas avaliações."));
+}
