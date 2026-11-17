@@ -137,6 +137,18 @@ async def reasoning_draft(
                         "Revisão independente falhou ou retornou resposta incompleta"
                     )
     # Even reviewer-supported results remain experimental and clinically unvalidated.
+    # Do not echo potentially unsafe or unsupported model-generated content
+    # when any mandatory check blocks the overall response.
+    if audited.status == "blocked":
+        for hypothesis in audited.hypotheses:
+            hypothesis.title = "Hipótese experimental bloqueada"
+            hypothesis.rationale = "Conteúdo não apresentado porque a auditoria não foi concluída ou identificou riscos."
+            hypothesis.supporting_record_ids = []
+            hypothesis.opposing_record_ids = []
+            hypothesis.citation_ids = []
+            hypothesis.missing_information = []
+            hypothesis.contraindications_to_check = []
+            hypothesis.uncertainty_note = "Não utilizar esta saída para interpretação clínica."
     db.add(AuditEvent(
         entity_type="assessment", entity_id=assessment_id,
         action="synthetic_reasoning_attempt", actor="owner",
