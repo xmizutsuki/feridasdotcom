@@ -76,3 +76,15 @@ O modelo apenas sugere características visuais por campo. A API valida o esquem
 A verificação técnica por foto agora oferece alertas experimentais de iluminação, resolução, contraste e detalhe aparente. O aplicativo apresenta recomendações de recaptura, mas não bloqueia a documentação. Na área **Evolução**, há uma comparação exploratória de metadados entre duas fotografias da mesma lesão em datas diferentes. **Não** há alinhamento espacial validado nem cálculo automático de área. Veja `docs/IMAGE_QUALITY.md`.
 
 Endpoints locais protegidos: `GET /photos/{photo_id}/quality` e `GET /photos/{current_id}/compare/{previous_id}`. Testes em `tests/test_quality.py`; é necessário conferir CI antes de mesclar.
+
+## Anamnese estruturada e intervenções (novo marco)
+
+Na tela de avaliação, a seção **Anamnese e exame clínico** permite registrar dor, tempo de evolução, sintomas relatados, possível alteração de perfusão, fatores relacionados a pressão/compressão, comorbidades, alergias, medicamentos e contexto. Campos vazios significam **não registrado**, nunca resposta negativa. Cada nova revisão gera um registro adicional. O histórico anterior somente é exibido se existir uma avaliação finalizada da mesma lesão; seus dados não são herdados como achados confirmados.
+
+A seção **Condutas e intervenções** diferencia ações planejadas, realizadas e não realizadas. Na aba **Evolução**, uma linha do tempo exibe dados clínicos declarados e eventos terapêuticos, sem inferir relação causal ou recomendar tratamentos.
+
+Há avisos determinísticos **experimentais** sobre determinados relatos de piora, febre e perfusão, mas não foram validados para identificar ou excluir emergências. **A ausência de aviso não significa segurança clínica.**
+
+API: `app/clinical_routes.py`; contratos: `app/clinical_schemas.py`; regras: `app/clinical_rules.py`; tela: `web/clinical.js`; testes: `tests/test_clinical.py`. Documentação: `docs/CLINICAL_HISTORY.md`.
+
+Esta é uma implementação de protótipo com dados sintéticos. Persistem lacunas importantes: migrações, criptografia de campos do banco, autenticação por profissional, assinatura/adendos, avaliação clínica de regras e validação da aplicação.
