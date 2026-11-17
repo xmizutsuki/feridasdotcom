@@ -14,7 +14,7 @@ Implementado:
 - Auditoria básica de eventos e tendência de área com cálculos determinísticos.
 - Testes de integração com informações fictícias.
 
-**Ainda não há processamento de imagem ou IA.** O núcleo foi estruturado para recebê-los nas etapas seguintes.
+Interface web responsiva incluída: painel com totais, pacientes, lesões, avaliações, revisão de achados, finalização e gráfico de evolução. **Ainda não há processamento de imagem ou IA.** O núcleo foi estruturado para recebê-los nas etapas seguintes.
 
 ### Executar localmente
 
@@ -27,7 +27,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --host 127.0.0.1
 ```
 
-API interativa: http://127.0.0.1:8000/docs
+Aplicativo web: http://127.0.0.1:8000/app/\n\nAPI interativa: http://127.0.0.1:8000/docs
 
 ### Testar
 
@@ -39,10 +39,14 @@ pytest -q
 
 - `app/models.py`: entidades e rastreabilidade.
 - `app/schemas.py`: contratos de entrada/saída.
-- `app/main.py`: endpoints do núcleo clínico.
+- `web/`: interface responsiva servida pelo backend (HTML, CSS e JavaScript).\n- `app/main.py`: endpoints do núcleo clínico e interface web.
 - `tests/`: testes automatizados com dados fictícios.
 - `docs/ARCHITECTURE.md`: status, limites e próximos passos.
 
 ### Segurança
 
 Não incluir `.env`, imagens reais ou banco de pacientes no Git. Antes de uso real: autenticação, perfis de acesso, criptografia, tratamento LGPD, migrações, backups, adendos e validação clínica.
+
+### Estado desta entrega
+
+Interface e API integradas no código, com testes de integração escritos. A execução dos testes automatizados ainda precisa ser confirmada em ambiente Python ou CI. A interface depende de um backend rodando localmente e **não** implementa autenticação, IA, armazenamento de fotografias ou sincronização offline. Não hospedar esta versão publicamente.
