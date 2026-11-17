@@ -123,6 +123,8 @@ async function renderTrends(){
  }
  const trends=await api("/lesions/"+encodeURIComponent(state.selectedLesion)+"/trend");
  const measured=trends.filter(t=>t.area_cm2!==null);
+ $("comparison-content").insertAdjacentHTML("afterend", '<section class="panel" id="clinical-timeline"></section>');
+ renderClinicalTimeline(lesionId).catch(e=>notice("Falha ao carregar linha do tempo: "+e.message,true));
  $("trend-content").innerHTML=measured.length?'<div class="panel-header"><h2>Evolução da área registrada</h2><span class="tiny">Somente avaliações validadas</span></div><div class="bar-chart">'+measured.map(t=>{const max=Math.max(...measured.map(x=>x.area_cm2),1);return '<div class="bar-group"><div class="bar-value">'+escapeHtml(t.area_cm2)+' cm²</div><div class="bar" style="height:'+Math.max(3,Math.round(t.area_cm2/max*155))+'px"></div><div class="bar-label">'+date(t.captured_at)+'</div></div>';}).join("")+'</div><p class="muted">Variação desde a primeira área válida: '+escapeHtml(measured.at(-1).change_from_baseline_percent)+'%. Os números são descritivos, não constituem interpretação clínica nem confirmação de resposta terapêutica.</p>':empty("Sem medições validadas","Registre a área e finalize ao menos uma avaliação.");
 }
 function modal(title,fields,onSave){
