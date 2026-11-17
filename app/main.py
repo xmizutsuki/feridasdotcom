@@ -195,3 +195,7 @@ app.include_router(second_opinion_router)
 # Human-attested evidence snippets and transparent lexical search (no clinical recommendations).
 from .evidence_routes import router as evidence_router
 app.include_router(evidence_router)
+
+# Source-document matching and citation verification (no clinical advice).
+from .document_routes import router as document_router
+app.include_router(document_router)
