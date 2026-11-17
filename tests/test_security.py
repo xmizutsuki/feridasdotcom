@@ -41,6 +41,6 @@ def test_photo_requires_owner_and_restricts_invalid_upload():
         assert data.status_code == 200
         assert data.headers["content-type"].startswith("image/jpeg")
         assert data.headers["cache-control"] == "no-store"
-        assert data.content[:2] == b"\\xff\\xd8"
+        assert data.content[:2] == bytes([255, 216])
         client.post("/auth/logout")
         assert client.get("/photos/"+photo_id).status_code == 401
