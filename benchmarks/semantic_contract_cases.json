@@ -1,0 +1,150 @@
+{
+  "version": "synthetic-semantic-contract-v1",
+  "notes": "Synthetic, nonclinical, developer-authored unit challenges. No expert adjudication, clinical accuracy or sensitivity can be inferred.",
+  "cases": [
+    {
+      "id": "supported_and_applicable",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "supported",
+      "population": "yes",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "review_required"
+    },
+    {
+      "id": "contradictory_excerpt",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "contradicted",
+      "population": "yes",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "excerpt_does_not_establish_claim",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "not_established",
+      "population": "yes",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "different_population",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "supported",
+      "population": "no",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "population_uncertain",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "supported",
+      "population": "uncertain",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "potential_contraindication",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "supported",
+      "population": "yes",
+      "contraindication_conflict": true,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "overconfident_wording",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "supported",
+      "population": "yes",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": true,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "unsupported_clinical_assertion",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "supported",
+      "population": "yes",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": true,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "missing_critical_information",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "supported",
+      "population": "yes",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": true,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "uncertain_claim",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "uncertain",
+      "population": "uncertain",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "not_applicable_evidence",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "not_applicable",
+      "population": "no",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": false,
+      "expected_status": "blocked"
+    },
+    {
+      "id": "omitted_citation",
+      "description": "Caso sintético de teste de contrato; não é um cenário clínico validado.",
+      "verdict": "supported",
+      "population": "yes",
+      "contraindication_conflict": false,
+      "unsafe_or_overconfident_language": false,
+      "unsupported_clinical_assertion": false,
+      "missing_critical_information": false,
+      "omit_citation": true,
+      "expected_status": "error"
+    }
+  ]
+}
