@@ -63,3 +63,45 @@ def search_passages(
     db: Session = Depends(get_db),
 ):
     return retrieve(db, q, limit)
+
+@router.get("/assessments/{assessment_id}/candidates")
+def context_candidates(assessment_id: str, db: Session = Depends(get_db)):
+    """Keyword suggestions from explicit current-assessment facts only.
+
+    This is NOT a diagnosis, indication, treatment suggestion or evidence appraisal.
+    Never infer etiology from photographic descriptions or unvalidated findings.
+    """
+    from .models import Assessment
+    from .second_opinion import make_context
+    assessment = db.get(Assessment, assessment_id)
+    if assessment is None:
+        raise HTTPException(status_code=404, detail="Avaliação não encontrada")
+    context = make_context(db, assessment)
+    values = {datum.field_name: datum.value for datum in context.reported_clinical_data}
+    topics = []
+    if values.get("diabetes_reported") is True:
+        topics.append("diabetic_foot")
+    if values.get("perfusion_exam") == "concern_reported":
+        topics.append("perfusion")
+    if values.get("pressure_offloading") in ("yes", "no"):
+        topics.append("offloading")
+    if values.get("compression_used") in ("yes", "no"):
+        topics.append("compression")
+    # Topic relevance is a search convenience and never establishes a diagnosis.
+    matches = []
+    seen = set()
+    for topic in topics:
+        result = retrieve(db, topic, limit=5)
+        for match in result.matches:
+            if match.passage.id not in seen and topic in match.passage.topic_tags:
+                matches.append(match.model_dump(mode="json"))
+                seen.add(match.passage.id)
+    return {
+        "assessment_id": assessment_id,
+        "search_topics_from_explicit_reported_data": topics,
+        "matches": matches[:10],
+        "clinical_applicability_validated": False,
+        "reasoning_executed": False,
+        "recommendations_enabled": False,
+        "message": "Trechos candidatos para pesquisa manual; nenhum tema ou resultado é diagnóstico ou conduta.",
+    }
