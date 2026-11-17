@@ -1,0 +1,29 @@
+name: Validate Feridas.com Static Demo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "tests/pages_demo_smoke.cjs"
+      - ".github/workflows/demo-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check JavaScript syntax
+        run: |
+          for script in docs/*.js; do node --check "$script"; done
+      - name: Exercise synthetic routes and verify frontend assets
+        run: node tests/pages_demo_smoke.cjs
