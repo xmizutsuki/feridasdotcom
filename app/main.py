@@ -191,3 +191,7 @@ app.include_router(clinical_router)
 # Read-only validated-fact assembly; no automatic diagnosis/recommendations.
 from .second_opinion_routes import router as second_opinion_router
 app.include_router(second_opinion_router)
+
+# Human-attested evidence snippets and transparent lexical search (no clinical recommendations).
+from .evidence_routes import router as evidence_router
+app.include_router(evidence_router)
