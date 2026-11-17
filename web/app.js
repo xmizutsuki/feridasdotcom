@@ -69,6 +69,7 @@ async function renderReview(){
   if(photos.length)html+='<div id="photo-quality"><h3>Qualidade técnica da fotografia</h3><p class="tiny">Indicadores experimentais; não atestam adequação clínica nem permitem medir cm².</p><button class="secondary-btn" id="check-photo-quality" type="button">Verificar imagem</button><div id="quality-results"></div></div>';
   if(a.status!=="validated")html+='<form id="photo-upload" class="photo-upload"><input type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-label="Selecionar fotografia" required><button class="secondary-btn" type="submit">Adicionar fotografia</button></form>';
   el.innerHTML=html;
+  renderClinicalSection(a,el).catch(e=>notice("Falha ao carregar anamnese: "+e.message,true));
   $("check-photo-quality")?.addEventListener("click",async()=>{
     const output=$("quality-results");output.textContent="Analisando a qualidade técnica...";
     try{
