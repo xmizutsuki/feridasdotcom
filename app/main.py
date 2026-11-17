@@ -160,3 +160,14 @@ def audit_log(entity_type: str, entity_id: str, db: Session = Depends(get_db)):
         select(AuditEvent).where(AuditEvent.entity_type == entity_type, AuditEvent.entity_id == entity_id)
         .order_by(AuditEvent.occurred_at, AuditEvent.id)
     ).all()
+
+# Interface local do protótipo (não disponibilizar publicamente sem autenticação).
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
+
+@app.get('/', include_in_schema=False)
+def home():
+    return RedirectResponse(url='/app/')
+
+app.mount('/app', StaticFiles(directory=Path(__file__).resolve().parent.parent / 'web', html=True), name='web')
