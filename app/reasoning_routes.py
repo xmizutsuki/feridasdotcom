@@ -11,6 +11,7 @@ from .models import Assessment, VerifiedCitation, EvidenceDocument, AuditEvent
 from .second_opinion import make_context
 from .reasoning import enabled, generate_draft, audit_draft
 from .reasoning_schemas import ReasoningAuditResult
+from .semantic_audit import enabled as semantic_enabled, review_semantics, evaluate_verdicts
 from .pdf_evidence import check_citation
 from .media import read_encrypted
 from .security import settings
@@ -25,7 +26,7 @@ class ReasoningRequest(BaseModel):
 
 @router.get("/reasoning/status")
 def reasoning_status():
-    return {"enabled": enabled(), "synthetic_only": True,
+    return {"enabled": enabled(), "semantic_reviewer_enabled": semantic_enabled(), "synthetic_only": True,
             "clinical_validation": False, "therapeutic_recommendations_enabled": False}
 
 @router.post("/{assessment_id}/reasoning-draft", response_model=ReasoningAuditResult)
@@ -99,6 +100,43 @@ async def reasoning_draft(
     allowed = {o["record_id"] for o in observations}
     audited = audit_draft(assessment_id, model_name, draft, allowed,
                           set(payload.citation_ids), urgent=False)
+    # Independent reviewer must be configured separately from the generator.
+    # Structural consistency does not substitute semantic review; fail closed.
+    if audited.status != "blocked":
+        if not semantic_enabled():
+            audited.status = "blocked"
+            for hypothesis in audited.hypotheses:
+                hypothesis.semantic_audit_status = "blocked"
+                hypothesis.semantic_audit_issues.append(
+                    "Revisão semântica independente não configurada"
+                )
+        else:
+            try:
+                semantic, reviewer_model = await review_semantics(
+                    context_for_model,
+                    [item.model_dump() for item in draft.hypotheses],
+                    citations,
+                )
+                issues_by_hypothesis = evaluate_verdicts(
+                    [item.model_dump() for item in draft.hypotheses], semantic
+                )
+                audited.semantic_audit_performed = True
+                audited.semantic_audit_model = reviewer_model
+                for hypothesis, issues in zip(audited.hypotheses, issues_by_hypothesis):
+                    hypothesis.semantic_audit_issues = issues
+                    hypothesis.semantic_audit_status = (
+                        "blocked" if issues else "reviewer_supported"
+                    )
+                if any(issues_by_hypothesis):
+                    audited.status = "blocked"
+            except Exception:
+                audited.status = "blocked"
+                for hypothesis in audited.hypotheses:
+                    hypothesis.semantic_audit_status = "blocked"
+                    hypothesis.semantic_audit_issues.append(
+                        "Revisão independente falhou ou retornou resposta incompleta"
+                    )
+    # Even reviewer-supported results remain experimental and clinically unvalidated.
     db.add(AuditEvent(
         entity_type="assessment", entity_id=assessment_id,
         action="synthetic_reasoning_attempt", actor="owner",
