@@ -62,3 +62,14 @@ class AuditEvent(Base):
     actor: Mapped[str] = mapped_column(String(100))
     detail: Mapped[str] = mapped_column(Text)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+class Photo(Base):
+    __tablename__ = "photos"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    assessment_id: Mapped[str] = mapped_column(ForeignKey("assessments.id"), index=True, nullable=False)
+    filename: Mapped[str] = mapped_column(String(48), unique=True, nullable=False)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    width: Mapped[int] = mapped_column(Integer, nullable=False)
+    height: Mapped[int] = mapped_column(Integer, nullable=False)
+    media_type: Mapped[str] = mapped_column(String(40), default="image/jpeg")
+    uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
