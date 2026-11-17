@@ -1,11 +1,16 @@
 "use strict";
 const $ = (id) => document.getElementById(id);
+let csrfToken = "";
 const labels = {dashboard:"Visão geral",patients:"Pacientes",lesions:"Lesões",assessments:"Avaliações",trends:"Evolução"};
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const date = (d) => d ? new Date(d).toLocaleDateString("pt-BR") : "—";
 const state = {view:"dashboard",patients:[],lesions:[],assessments:[],selectedPatient:"",selectedLesion:"",selectedAssessment:"",findings:[]};
 async function api(path, options={}) {
-  const response=await fetch(path,{...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
+  const isForm = options.body instanceof FormData;
+  const method = (options.method || "GET").toUpperCase();
+  const headers = {...(!isForm && options.body ? {"Content-Type":"application/json"} : {}),...(options.headers || {})};
+  if(!["GET","HEAD","OPTIONS"].includes(method) && csrfToken)headers["X-CSRF-Token"]=csrfToken;
+  const response=await fetch(path,{...options,credentials:"same-origin",headers});
   const raw=await response.text(); let data;
   try {data=raw?JSON.parse(raw):null;} catch {data=null;}
   if(!response.ok) throw new Error(typeof data?.detail==="string"?data.detail:"Erro "+response.status+" ao carregar os dados");
@@ -54,7 +59,21 @@ async function renderReview(){
   if(!state.findings.length)html+=empty("Sem achados registrados","Adicione um achado para iniciar a revisão.");
   else html+=state.findings.map(f=>'<div class="review-item"><h3>'+escapeHtml(f.field_name)+'</h3><div class="tiny">Origem: '+escapeHtml(f.source)+' · Sustentação: '+escapeHtml(f.support)+' · Revisão: '+escapeHtml(f.validation_status)+'</div><p>Proposto: '+escapeHtml(f.proposed_text)+'</p>'+(f.validated_text?'<p><strong>Validado:</strong> '+escapeHtml(f.validated_text)+'</p>':'')+(f.validation_status==="pending"&&a.status!=="validated"?'<div class="review-actions"><button class="secondary-btn" data-review="'+escapeHtml(f.id)+'" data-decision="confirmed">Confirmar</button><button class="secondary-btn" data-review="'+escapeHtml(f.id)+'" data-decision="corrected">Corrigir</button><button class="secondary-btn" data-review="'+escapeHtml(f.id)+'" data-decision="rejected">Rejeitar</button></div>':'')+'</div>').join("");
   if(a.status!=="validated")html+='<div class="detail-actions"><button class="secondary-btn" id="add-finding">+ Adicionar achado</button><button class="primary-btn" id="finalize-assessment" '+(!state.findings.length||state.findings.some(f=>f.validation_status==="pending")?"disabled":"")+'>Finalizar avaliação</button></div>';
+  const photos=await api("/assessments/"+encodeURIComponent(a.id)+"/photos");
+  html+='<h3>Fotografias da avaliação</h3><p class="tiny">Imagens privadas, reprocessadas sem EXIF e protegidas por criptografia em disco.</p>';
+  if(photos.length)html+='<div class="photos-grid">'+photos.map(p=>'<div class="photo-tile"><img loading="lazy" alt="Fotografia clínica cadastrada" src="/photos/'+encodeURIComponent(p.id)+'"><small>'+escapeHtml(p.width)+' × '+escapeHtml(p.height)+' pixels</small></div>').join("")+'</div>';
+  else html+='<p class="muted">Nenhuma fotografia enviada.</p>';
+  if(a.status!=="validated")html+='<form id="photo-upload" class="photo-upload"><input type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-label="Selecionar fotografia" required><button class="secondary-btn" type="submit">Adicionar fotografia</button></form>';
   el.innerHTML=html;
+  $("photo-upload")?.addEventListener("submit",async(ev)=>{
+    ev.preventDefault();
+    const form=new FormData(ev.currentTarget);
+    try{
+      await api("/assessments/"+encodeURIComponent(a.id)+"/photos",{method:"POST",body:form});
+      await renderReview();
+      notice("Fotografia criptografada e vinculada à avaliação.");
+    }catch(e){notice(e.message,true);}
+  });
   $("add-finding")?.addEventListener("click",()=>modalFinding(a.id));
   $("finalize-assessment")?.addEventListener("click",async()=>{const reviewer=window.prompt("Identificação do revisor (apenas fictícia neste protótipo):","REVISOR-TESTE");if(!reviewer?.trim())return;try{await api("/assessments/"+encodeURIComponent(a.id)+"/finalize?reviewer="+encodeURIComponent(reviewer.trim()),{method:"POST"});await reload("Avaliação finalizada.");}catch(e){notice(e.message,true);}});
 }
@@ -96,4 +115,40 @@ document.querySelectorAll("[data-view]").forEach(el=>el.addEventListener("click"
 $("close-modal").onclick=closeModal;$("cancel-modal").onclick=closeModal;
 $("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modal").hidden)closeModal();});
-load().then(()=>setView("dashboard")).catch(e=>{$("content").innerHTML=empty("Não foi possível conectar ao servidor",e.message);notice(e.message,true);});
+function showLogin(error=""){
+  $("login-screen").hidden=false;
+  $("login-error").hidden=!error;
+  $("login-error").textContent=error;
+  $("login-password").focus();
+}
+async function start(){
+  try{
+    const session=await api("/auth/session");
+    csrfToken=session.csrf;
+    $("login-screen").hidden=true;
+    await load();
+    setView("dashboard");
+  }catch(e){
+    if(e.message.includes("Autenticação"))showLogin();
+    else {showLogin("Não foi possível conectar ao servidor: "+e.message);}
+  }
+}
+$("login-form").addEventListener("submit",async(ev)=>{
+  ev.preventDefault();
+  try{
+    const response=await api("/auth/login",{method:"POST",body:JSON.stringify({password:$("login-password").value})});
+    csrfToken=response.csrf;
+    $("login-password").value="";
+    $("login-screen").hidden=true;
+    await load();
+    setView("dashboard");
+  }catch(e){showLogin(e.message);}
+});
+$("logout-button").addEventListener("click",async()=>{
+  try{await api("/auth/logout",{method:"POST"});}catch(e){}
+  csrfToken="";
+  state.patients=[];state.lesions=[];state.assessments=[];state.findings=[];
+  $("content").replaceChildren();
+  showLogin();
+});
+start();
