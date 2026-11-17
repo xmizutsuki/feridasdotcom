@@ -1,5 +1,6 @@
 """Authentication, CSRF protection and encrypted photo endpoints for local single-owner MVP."""
 import hmac
+import os
 import time
 from collections import defaultdict
 from fastapi import UploadFile, File, Depends, HTTPException, Request, Response, APIRouter
@@ -67,6 +68,8 @@ def install_security(app):
 
     @router.post("/assessments/{assessment_id}/photos", status_code=201)
     async def upload_photo(assessment_id: str, image: UploadFile = File(...), db: Session = Depends(get_db)):
+        if os.getenv("FERIDAS_DISABLE_MEDIA_UPLOADS", "false").lower() == "true":
+            raise HTTPException(status_code=503, detail="Upload de fotografias desabilitado: armazenamento durável ainda não configurado.")
         assessment = db.get(Assessment, assessment_id)
         if assessment is None:
             raise HTTPException(status_code=404, detail="Avaliação não encontrada")
