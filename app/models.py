@@ -98,3 +98,17 @@ class TreatmentIntervention(Base):
     recorder_id: Mapped[str] = mapped_column(String(100), nullable=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+class EvidencePassage(Base):
+    """Append-only operator-reviewed short evidence excerpt. No approval for patient care."""
+    __tablename__ = "evidence_passages"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    catalog_source_id: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    source_location: Mapped[str] = mapped_column(String(160), nullable=False)
+    excerpt: Mapped[str] = mapped_column(String(350), nullable=False)
+    excerpt_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    language: Mapped[str] = mapped_column(String(12), nullable=False, default="en")
+    topic_tags: Mapped[list] = mapped_column(JSON, nullable=False)
+    reviewed_by: Mapped[str] = mapped_column(String(100), nullable=False)
+    reviewed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    applicability_notes: Mapped[str | None] = mapped_column(String(600), nullable=True)
