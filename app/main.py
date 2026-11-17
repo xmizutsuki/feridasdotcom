@@ -179,3 +179,7 @@ install_security(app)
 # Optional multimodal visual draft. Authentication middleware applies to these routes too.
 from .vision_routes import router as vision_router
 app.include_router(vision_router)
+
+# Experimental non-diagnostic metadata comparison for serial photos.
+from .comparison_routes import router as comparison_router
+app.include_router(comparison_router)
