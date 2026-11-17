@@ -113,3 +113,31 @@ def list_lesion_interventions(lesion_id: str, db: Session = Depends(get_db)):
                       .join(Assessment, TreatmentIntervention.assessment_id == Assessment.id)
                       .where(Assessment.lesion_id == lesion_id)
                       .order_by(TreatmentIntervention.recorded_at, TreatmentIntervention.id)).all()
+
+@router.get("/lesions/{lesion_id}/clinical-timeline")
+def clinical_timeline(lesion_id: str, db: Session = Depends(get_db)):
+    """Latest signed-in-session entries per assessment, no diagnostic inference."""
+    from .models import Lesion
+    if db.get(Lesion, lesion_id) is None:
+        raise HTTPException(status_code=404, detail="Lesão não encontrada")
+    assessments = db.scalars(select(Assessment)
+        .where(Assessment.lesion_id == lesion_id)
+        .order_by(Assessment.captured_at, Assessment.id)).all()
+    result = []
+    for assessment in assessments:
+        history = db.scalar(select(ClinicalHistoryRecord)
+            .where(ClinicalHistoryRecord.assessment_id == assessment.id)
+            .order_by(ClinicalHistoryRecord.revision.desc()))
+        interventions = db.scalars(select(TreatmentIntervention)
+            .where(TreatmentIntervention.assessment_id == assessment.id)
+            .order_by(TreatmentIntervention.recorded_at, TreatmentIntervention.id)).all()
+        result.append({
+            "assessment_id": assessment.id,
+            "captured_at": assessment.captured_at,
+            "assessment_status": assessment.status,
+            "history": serialize_history(history).model_dump(mode="json") if history is not None else None,
+            "interventions": [InterventionOut.model_validate(x, from_attributes=True).model_dump(mode="json")
+                              for x in interventions],
+            "clinical_validation": False,
+        })
+    return result
